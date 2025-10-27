@@ -11,7 +11,7 @@ def home():
     return render_template('index.html', alarm_time=alarm_time, clockout_time=clockout_time, history=history)
 
 @app.route('/update_data')
-def data():
+def update_data():
     return jsonify({
         "streak": get_streak(),
         "highscore": get_highscore()
