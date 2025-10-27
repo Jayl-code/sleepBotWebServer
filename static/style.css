@@ -1,0 +1,52 @@
+body{
+    font-family: "Roboto", sans-serif;
+    background-color: #000000;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+}
+
+.times {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    background-color: #4f0b52;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(19, 159, 156, 0.7);
+    width: 300px;
+    margin-bottom: 1rem;
+    text-align: center;
+    align-items: center;
+    gap: 10px;
+}
+.streak, .scores {
+    display: flex;
+    flex-direction: column;
+    background-color: #751777;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(19, 159, 156, 0.7);
+    width: 300px;
+    margin-bottom: 1rem;
+    text-align: center;
+    align-items: center;
+}
+
+button {
+    background-color: #3b0a3e;
+    color: #ffffff;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    
+}
+

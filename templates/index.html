@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sleep Bot</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="scores">
+    <div id="highscore" class="value">High Score: </div>
+  </div>
+
+  <div class="streak">
+    <div id="streak" class="value">Current streak: </div>
+  </div>
+
+  <div class="times">
+    <div class="alarm_time">
+      <div id="alarm_time" class="value">
+        Alarm time: {{ alarm_time }}
+        <button id="alarm_settings_btn" type="button" aria-label="Edit Alarm Time">
+          ⚙️
+        </button>
+      </div>
+
+      <form id="alarm_form" method="post" action="/set_alarm" style="display: none; margin-top: 10px;">
+        <label for="alarm_time_input">New alarm time:</label>
+        <input type="time" id="alarm_time_input" name="alarm_time" required>
+        <button type="submit">Set</button>
+      </form>
+    </div>
+
+    <div class="clockout_time">
+      <div id="clockout_time" class="value">
+        Clockout time: {{clockout_time}}
+        <button id="clockout_settings_btn" type="button" aria-label="Edit Clockout Time">
+          ⚙️
+        </button>
+      </div>
+
+      <form id="clockout_form" method="post" action="/set_clockout" style="display: none; margin-top: 10px;">
+        <label for="clockout_time_input">New clockout time:</label>
+        <input type="time" id="clockout_time_input" name="clockout_time" required>
+        <button type="submit">Set</button>
+      </form>
+    </div>
+  </div>
+
+<script src="{{url_for('static', filename='script.js')}}"></script>
+</body>
+</html>
