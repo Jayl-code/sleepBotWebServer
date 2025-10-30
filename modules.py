@@ -21,6 +21,18 @@ def get_config(file_path='config.json'):
     
     return alarm_time, clockout_time
 
+def get_history(file_path='history.json'):
+    try:
+        with open(file_path, 'r') as file:
+            content = file.read().strip()
+            if not content:  # empty file
+                history = []
+            else:
+                history = json.loads(content)
+    except (FileNotFoundError, json.JSONDecodeError):
+        history = []
+    return history
+
 def get_streak(file_path='streak.txt'):
     try:
         with open(file_path, 'r') as file:
@@ -36,18 +48,6 @@ def get_highscore(file_path='highscore.txt'):
     except (FileNotFoundError, ValueError):
         highscore = 0
     return highscore
-
-def get_history(file_path='history.json'):
-    try:
-        with open(file_path, 'r') as file:
-            content = file.read().strip()
-            if not content:  # empty file
-                history = []
-            else:
-                history = json.loads(content)
-    except (FileNotFoundError, json.JSONDecodeError):
-        history = []
-    return history
 
 def save_alarm_time(new_alarm_time, file_path='config.json'):
     with open(file_path, 'r') as file:
@@ -101,15 +101,17 @@ def watch_alarm():
 
         time.sleep(1)
 
-def habit_done(habit_id, file_path='history.json'):
-    # todo: implement habit tracking logic here
-    print(f"Habit {habit_id} marked as done.")
-    return
-
 def stop_alarm_calc(time_str, seconds_str):
     stop_alarm_playing()
     alarm_time = load_alarm_time()
     if time_str == alarm_time:
         print(f"Alarm stopped after {seconds_str} seconds.")
+        # todo: implement logic to update history, streak, highscore here
     else:
         print("Other")
+    return
+
+def habit_done(habit_id, file_path='history.json'):
+    # todo: implement habit tracking logic here
+    print(f"Habit {habit_id} marked as done.")
+    return

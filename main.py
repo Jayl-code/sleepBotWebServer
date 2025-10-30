@@ -10,6 +10,7 @@ def home():
     history = get_history()
     return render_template('index.html', alarm_time=alarm_time, clockout_time=clockout_time, history=history)
 
+# Called by AJAX (JS) to update streak and highscore without refreshing the page
 @app.route('/update_data')
 def update_data():
     return jsonify({
@@ -51,6 +52,7 @@ def stop_alarm():
         pass
     return redirect(url_for('home'))
 
+# Called by the controller when a habit button is clicked
 @app.route('/habit/<int:habit_id>', methods=['GET'])
 def habit(habit_id):
     if habit_id not in {1, 2, 3, 4}:
