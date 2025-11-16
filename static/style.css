@@ -40,6 +40,13 @@ body{
     align-items: center;
 }
 
+.streak_row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px; /* space between icon and text */
+}
+
 #highscore{
     font-weight: bolder;
     font-size: xx-large;
@@ -62,5 +69,5 @@ button {
 }
 
 .clockout_time {
-    display: none;  / Initially hide the clockout time, remove later
+    display: none; /* Initially hidden */
 }
