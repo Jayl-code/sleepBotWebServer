@@ -49,6 +49,14 @@ def get_highscore(file_path='highscore.txt'):
         highscore = 0
     return highscore
 
+def get_current_score(file_path='score.txt'):
+    try:
+        with open(file_path, 'r') as file:
+            score = int(file.read().strip())
+    except (FileNotFoundError, ValueError):
+        score = 0
+    return score
+
 def save_alarm_time(new_alarm_time, file_path='config.json'):
     with open(file_path, 'r') as file:
         data = json.load(file)

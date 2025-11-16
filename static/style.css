@@ -26,6 +26,7 @@ body{
     align-items: center;
     gap: 10px;
 }
+
 .streak, .scores {
     display: flex;
     flex-direction: column;
@@ -39,6 +40,16 @@ body{
     align-items: center;
 }
 
+#highscore{
+    font-weight: bolder;
+    font-size: xx-large;
+}
+
+#current_score{
+    font-weight: bold;
+    font-size: large;
+}
+
 button {
     background-color: #3b0a3e;
     color: #ffffff;
@@ -50,3 +61,6 @@ button {
     
 }
 
+.clockout_time {
+    display: none;  / Initially hide the clockout time, remove later
+}

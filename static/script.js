@@ -25,11 +25,15 @@ function updateData() {
       .then(data => {
         if ("streak" in data) {
         document.getElementById("streak").textContent =
-          "Current streak: " + data.streak;
+          "Streak: " + data.streak;
       }
       if ("highscore" in data) {
         document.getElementById("highscore").textContent =
           "High Score: " + data.highscore;
+      }
+      if ("current_score" in data) {
+        document.getElementById("current_score").textContent =
+          "Current Score: " + data.current_score;
       }
       });
   } catch (error) {

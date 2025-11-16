@@ -15,7 +15,8 @@ def home():
 def update_data():
     return jsonify({
         "streak": get_streak(),
-        "highscore": get_highscore()
+        "highscore": get_highscore(),
+        "current_score": get_current_score()
         })
 
 @app.route('/set_alarm', methods=['POST'])
