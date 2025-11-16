@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, jsonify, abort # type: ignore
+from flask import Flask, render_template, redirect, url_for, request, jsonify, abort 
 from modules import *
 import threading
 

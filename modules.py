@@ -2,7 +2,13 @@ import json
 import time
 from datetime import datetime
 
-def get_config(file_path='config.json'):
+config_file = 'config.json'
+history_file = 'data/history.json'
+streak_file = 'data/streak.txt'
+highscore_file = 'data/highscore.txt'
+score_file = 'data/score.txt'
+
+def get_config(file_path=config_file):
     defaults = {"alarm_time": "00:00", "clockout_time": "00:00"}
     with open(file_path, 'r') as file:
         content = file.read().strip()
@@ -21,7 +27,7 @@ def get_config(file_path='config.json'):
     
     return alarm_time, clockout_time
 
-def get_history(file_path='history.json'):
+def get_history(file_path=history_file):
     try:
         with open(file_path, 'r') as file:
             content = file.read().strip()
@@ -33,7 +39,7 @@ def get_history(file_path='history.json'):
         history = []
     return history
 
-def get_streak(file_path='streak.txt'):
+def get_streak(file_path=streak_file):
     try:
         with open(file_path, 'r') as file:
             streak = int(file.read().strip())
@@ -41,7 +47,7 @@ def get_streak(file_path='streak.txt'):
         streak = 0
     return streak
 
-def get_highscore(file_path='highscore.txt'):
+def get_highscore(file_path=highscore_file):
     try:
         with open(file_path, 'r') as file:
             highscore = int(file.read().strip())
@@ -49,7 +55,7 @@ def get_highscore(file_path='highscore.txt'):
         highscore = 0
     return highscore
 
-def get_current_score(file_path='score.txt'):
+def get_current_score(file_path=score_file):
     try:
         with open(file_path, 'r') as file:
             score = int(file.read().strip())
@@ -57,7 +63,7 @@ def get_current_score(file_path='score.txt'):
         score = 0
     return score
 
-def save_alarm_time(new_alarm_time, file_path='config.json'):
+def save_alarm_time(new_alarm_time, file_path=config_file):
     with open(file_path, 'r') as file:
         data = json.load(file)
 
@@ -67,7 +73,7 @@ def save_alarm_time(new_alarm_time, file_path='config.json'):
         json.dump(data, file, indent=4)
     return
 
-def save_clockout_time(new_clockout_time, file_path='config.json'):
+def save_clockout_time(new_clockout_time, file_path=config_file):
     with open(file_path, 'r') as file:
         data = json.load(file)
 
@@ -77,7 +83,7 @@ def save_clockout_time(new_clockout_time, file_path='config.json'):
         json.dump(data, file, indent=4)
     return
 
-def load_alarm_time(file_path='config.json'):
+def load_alarm_time(file_path=config_file):
     with open(file_path, "r") as f:
         data = json.load(f)
     return data.get("alarm_time", "00:00")
@@ -119,7 +125,7 @@ def stop_alarm_calc(time_str, seconds_str):
         print("Other")
     return
 
-def habit_done(habit_id, file_path='history.json'):
+def habit_done(habit_id, file_path=history_file):
     # todo: implement habit tracking logic here
     print(f"Habit {habit_id} marked as done.")
     return
