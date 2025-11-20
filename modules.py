@@ -1,6 +1,6 @@
 import json
 import time
-from datetime import datetime
+from datetime import datetime, date, timedelta
 import sqlite3
 
 
@@ -9,7 +9,28 @@ db_file = 'database.db'
 
 
 def get_config(file_path=config_file):
-    defaults = {"alarm_time": "00:00", "clockout_time": "00:00"}
+    defaults = {
+    "alarm_time": "00:00",
+    "clockout_time": "00:00",
+    "alarm_days": {
+        "monday": True,
+        "tuesday": True,
+        "wednesday": True,
+        "thursday": True,
+        "friday": True,
+        "saturday": True,
+        "sunday": True
+    },
+    "clockout_days": {
+        "monday": True,
+        "tuesday": True,
+        "wednesday": True,
+        "thursday": True,
+        "friday": True,
+        "saturday": True,
+        "sunday": True
+    }
+}
     with open(file_path, 'r') as file:
         content = file.read().strip()
         if not content:  # empty file
@@ -72,6 +93,49 @@ def load_alarm_time(file_path=config_file):
     with open(file_path, "r") as f:
         data = json.load(f)
     return data.get("alarm_time", "00:00")
+
+def clockout_action():
+    date_of_alarm = None
+    clockout_completed = 1
+
+    alarm_time = load_alarm_time()
+    alarm_time = datetime.strptime(alarm_time, "%H:%M").time()
+    current_time = datetime.now().time()
+
+    if current_time < alarm_time:
+        date_of_alarm = date.today()
+    else:
+        date_of_alarm = date.today() + timedelta(days=1)
+
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
+
+    cur.execute("SELECT streak FROM history ORDER BY id DESC LIMIT 1")
+    row = cur.fetchone()
+
+    if row is None:
+        previous_streak = 0  # no previous entries
+    else:    
+        previous_streak = row[0]
+    new_streak = previous_streak + 1
+
+    data = [date_of_alarm, clockout_completed, new_streak]
+
+    try:
+        cur.execute("""
+            INSERT INTO history (date, clockout, streak)
+            VALUES (?, ?, ?)
+        """, data)
+
+        conn.commit()
+
+    except sqlite3.IntegrityError as e:
+        print("Error inserting clockout data:", e)
+
+    cur.close()
+    conn.close()
+
+    return
 
 def play_sound():
     print("Playing sound...")

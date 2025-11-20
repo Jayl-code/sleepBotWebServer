@@ -39,6 +39,11 @@ def set_clockout():
 
     return redirect(url_for('home'))
 
+@app.route('/clockout', methods=['GET'])
+def clockout():
+    clockout_action()
+    return redirect(url_for('home'))
+
 @app.route('/stop_alarm', methods=['POST'])
 def stop_alarm():
     if request.method == 'POST':

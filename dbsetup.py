@@ -7,7 +7,7 @@ def setup_database():
     cur.execute("""
     CREATE TABLE IF NOT EXISTS history (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT,
+        date TEXT UNIQUE,
         clockout INTEGER DEFAULT 0 CHECK(clockout IN (0, 1)),
         alarmStopped INTEGER DEFAULT 0 CHECK(alarmStopped IN (0, 1)),
         stopTime INTEGER,
