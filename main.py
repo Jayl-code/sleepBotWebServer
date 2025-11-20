@@ -1,23 +1,27 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify, abort 
 from modules import *
 import threading
+from dbsetup import setup_database
+
+setup_database()
 
 app = Flask(__name__)
 
 @app.route('/')
 def home():
     alarm_time, clockout_time = get_config()
-    history = get_history()
-    return render_template('index.html', alarm_time=alarm_time, clockout_time=clockout_time, history=history)
+    # history = get_history() // todo: add history display in frontend and 'history=history' in render_template
+    return render_template('index.html', alarm_time=alarm_time, clockout_time=clockout_time,) 
 
 # Called by AJAX (JS) to update streak and highscore without refreshing the page
 @app.route('/update_data')
 def update_data():
+    streak, highscore, current_score = get_update()
     return jsonify({
-        "streak": get_streak(),
-        "highscore": get_highscore(),
-        "current_score": get_current_score()
-        })
+        "streak": streak,
+        "highscore": highscore,
+        "current_score": current_score
+    })
 
 @app.route('/set_alarm', methods=['POST'])
 def set_alarm():

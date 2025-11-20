@@ -1,12 +1,12 @@
 import json
 import time
 from datetime import datetime
+import sqlite3
+
 
 config_file = 'config.json'
-history_file = 'data/history.json'
-streak_file = 'data/streak.txt'
-highscore_file = 'data/highscore.txt'
-score_file = 'data/score.txt'
+db_file = 'database.db'
+
 
 def get_config(file_path=config_file):
     defaults = {"alarm_time": "00:00", "clockout_time": "00:00"}
@@ -27,41 +27,26 @@ def get_config(file_path=config_file):
     
     return alarm_time, clockout_time
 
-def get_history(file_path=history_file):
-    try:
-        with open(file_path, 'r') as file:
-            content = file.read().strip()
-            if not content:  # empty file
-                history = []
-            else:
-                history = json.loads(content)
-    except (FileNotFoundError, json.JSONDecodeError):
-        history = []
-    return history
 
-def get_streak(file_path=streak_file):
-    try:
-        with open(file_path, 'r') as file:
-            streak = int(file.read().strip())
-    except (FileNotFoundError, ValueError):
-        streak = 0
-    return streak
+def get_update():
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
 
-def get_highscore(file_path=highscore_file):
-    try:
-        with open(file_path, 'r') as file:
-            highscore = int(file.read().strip())
-    except (FileNotFoundError, ValueError):
-        highscore = 0
-    return highscore
+    cur.execute("SELECT streak FROM history ORDER BY id DESC LIMIT 1")
+    streak = cur.fetchone()
 
-def get_current_score(file_path=score_file):
-    try:
-        with open(file_path, 'r') as file:
-            score = int(file.read().strip())
-    except (FileNotFoundError, ValueError):
-        score = 0
-    return score
+    cur.execute("SELECT score FROM history ORDER BY score DESC LIMIT 1")
+    highscore = cur.fetchone()
+
+    cur.execute("SELECT score FROM history ORDER BY id DESC LIMIT 1")
+    score = cur.fetchone()
+    
+    cur.close()
+    conn.close()
+    if streak is None:
+        return 0, 0, 0  # no data yet
+    return streak[0], highscore[0], score[0]
+
 
 def save_alarm_time(new_alarm_time, file_path=config_file):
     with open(file_path, 'r') as file:
@@ -125,7 +110,7 @@ def stop_alarm_calc(time_str, seconds_str):
         print("Other")
     return
 
-def habit_done(habit_id, file_path=history_file):
+def habit_done(habit_id):
     # todo: implement habit tracking logic here
     print(f"Habit {habit_id} marked as done.")
     return
