@@ -60,7 +60,7 @@ def stop_alarm():
     
     else:
         pass
-    return redirect(url_for('home'))
+    return "", 202 # ACCEPTED
 
 # Called by the controller when a habit button is clicked
 @app.route('/habit/<int:habit_id>', methods=['GET'])
@@ -68,7 +68,7 @@ def habit(habit_id):
     if habit_id not in {1, 2, 3, 4}:
         abort(404)
     habit_done(habit_id)
-    return redirect(url_for('home'))
+    return "", 202 # ACCEPTED
 
 if __name__ == '__main__':
     threading.Thread(target=watch_alarm, daemon=True).start()
