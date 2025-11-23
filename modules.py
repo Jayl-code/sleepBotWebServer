@@ -201,14 +201,47 @@ def watch_alarm():
 
         time.sleep(1)
 
+def get_multiplier():
+    multiplier_active = None
+    previous_streak = None
+
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
+
+    cur.execute("SELECT streak FROM history ORDER BY id DESC LIMIT 1")
+    row = cur.fetchone() # get previous streak
+
+    cur.close()
+    conn.close()
+
+    if row is None:
+        multiplier_active = False  # no previous entries
+    else:
+        multiplier_active = True    
+        previous_streak = row[0]
+
+    if multiplier_active:
+        multiplier_amount = int(previous_streak) / 10
+        multiplier = 1 + multiplier_amount
+    else:
+        multiplier = 1
+
+    return multiplier
+
 def stop_alarm_calc(time_str, seconds_str):
     stop_alarm_playing()
     alarm_time = load_alarm_time()
     if time_str == alarm_time:
         print(f"Alarm stopped after {seconds_str} seconds.")
-        # todo: implement logic to update history, streak, highscore here
+        # todo: implement logic to update history, streak, highscore here (Add day to database if not already added)
+        points_deducted = int(seconds_str) * 75  # Example: 75 points deducted per second
+        points_pre_multiplier = 1000 - points_deducted
+        multiplier = get_multiplier()
+        final_points = int(points_pre_multiplier * multiplier)
+        print(final_points)
     else:
         print("Other")
+        # todo: set streak of day to 0 in database
     return
 
 def habit_done(habit_id):
