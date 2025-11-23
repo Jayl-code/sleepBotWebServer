@@ -1,9 +1,11 @@
 import sqlite3
 
 def setup_database():
+    # Connect to SQLite database (or create it if it doesn't yet exist)
     conn = sqlite3.connect('database.db')
     cur = conn.cursor()
 
+    # Create history table if it doesn't exist
     cur.execute("""
     CREATE TABLE IF NOT EXISTS history (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

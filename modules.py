@@ -1,13 +1,14 @@
+# Imports
 import json
 import time
 from datetime import datetime, date, timedelta
 import sqlite3
 
-
+# File paths
 config_file = 'config.json'
 db_file = 'database.db'
 
-
+# Sends config data (alarm time, clockout time) to frontend and sets defaults if config file is empty
 def get_config(file_path=config_file):
     defaults = {
     "alarm_time": "00:00",
@@ -48,7 +49,7 @@ def get_config(file_path=config_file):
     
     return alarm_time, clockout_time
 
-
+# Retrieves current streak, highscore, and score from the database to send to frontend
 def get_update():
     conn = sqlite3.connect(db_file)
     cur = conn.cursor()
@@ -68,7 +69,7 @@ def get_update():
         return 0, 0, 0  # no data yet
     return streak[0], highscore[0], score[0]
 
-
+# Saves new alarm time to config file
 def save_alarm_time(new_alarm_time, file_path=config_file):
     with open(file_path, 'r') as file:
         data = json.load(file)
@@ -79,6 +80,7 @@ def save_alarm_time(new_alarm_time, file_path=config_file):
         json.dump(data, file, indent=4)
     return
 
+# Saves new clockout time to config file
 def save_clockout_time(new_clockout_time, file_path=config_file):
     with open(file_path, 'r') as file:
         data = json.load(file)
@@ -89,11 +91,13 @@ def save_clockout_time(new_clockout_time, file_path=config_file):
         json.dump(data, file, indent=4)
     return
 
+# Loads alarm time from config file
 def load_alarm_time(file_path=config_file):
     with open(file_path, "r") as f:
         data = json.load(f)
     return data.get("alarm_time", "00:00")
 
+# Checks if current time is within the allowed clockout range
 def is_clockout_in_range(start, end, current):
     current = str(current)
     start = str(start)
@@ -104,6 +108,7 @@ def is_clockout_in_range(start, end, current):
     else:
         return start <= current or current <= end
 
+# Processes clockout action and updates database accordingly
 def clockout_action():
     date_of_alarm = None
     clockout_completed = None
@@ -123,10 +128,11 @@ def clockout_action():
     allowed_time_before = (clockout_time_full - timedelta(hours=allowed_time_before_amount)).time()
     allowed_time_before = datetime.strptime(allowed_time_before.strftime("%H:%M"), "%H:%M").time()
 
-    clockout_completed = is_clockout_in_range(allowed_time_before, clockout_time, current_time_only)
+    clockout_completed = is_clockout_in_range(allowed_time_before, clockout_time, current_time_only) 
 
     if clockout_completed:
 
+        # Determine the date for the alarm entry
         if current_time < alarm_time:
             date_of_alarm = date.today()
         else:
@@ -136,13 +142,13 @@ def clockout_action():
         cur = conn.cursor()
 
         cur.execute("SELECT streak FROM history ORDER BY id DESC LIMIT 1")
-        row = cur.fetchone()
+        row = cur.fetchone() # get previous streak
 
         if row is None:
             previous_streak = 0  # no previous entries
         else:    
             previous_streak = row[0]
-        new_streak = previous_streak + 1
+        new_streak = previous_streak + 1 # Increment streak
 
         data = [date_of_alarm, clockout_completed, new_streak]
 
@@ -165,15 +171,18 @@ def clockout_action():
 
     return
 
+# Plays alarm sound (placeholder function)
 def play_sound():
     print("Playing sound...")
     # todo: implement actual sound playing logic here
 
+# Stops alarm sound (placeholder function)
 def stop_alarm_playing():
     print("Stopping alarm sound...")
     # todo: implement actual sound stopping logic here
     return
 
+# Watches for alarm time and triggers alarm sound when time matches 
 def watch_alarm():
     last_triggered_minute = None
     while True:
