@@ -1,15 +1,37 @@
+# Imports
 import json
 import time
-from datetime import datetime
+from datetime import datetime, date, timedelta
+import sqlite3
 
+# File paths
 config_file = 'config.json'
-history_file = 'data/history.json'
-streak_file = 'data/streak.txt'
-highscore_file = 'data/highscore.txt'
-score_file = 'data/score.txt'
+db_file = 'database.db'
 
+# Sends config data (alarm time, clockout time) to frontend and sets defaults if config file is empty
 def get_config(file_path=config_file):
-    defaults = {"alarm_time": "00:00", "clockout_time": "00:00"}
+    defaults = {
+    "alarm_time": "00:00",
+    "clockout_time": "00:00",
+    "alarm_days": {
+        "monday": True,
+        "tuesday": True,
+        "wednesday": True,
+        "thursday": True,
+        "friday": True,
+        "saturday": True,
+        "sunday": True
+    },
+    "clockout_days": {
+        "monday": True,
+        "tuesday": True,
+        "wednesday": True,
+        "thursday": True,
+        "friday": True,
+        "saturday": True,
+        "sunday": True
+    }
+}
     with open(file_path, 'r') as file:
         content = file.read().strip()
         if not content:  # empty file
@@ -27,42 +49,27 @@ def get_config(file_path=config_file):
     
     return alarm_time, clockout_time
 
-def get_history(file_path=history_file):
-    try:
-        with open(file_path, 'r') as file:
-            content = file.read().strip()
-            if not content:  # empty file
-                history = []
-            else:
-                history = json.loads(content)
-    except (FileNotFoundError, json.JSONDecodeError):
-        history = []
-    return history
+# Retrieves current streak, highscore, and score from the database to send to frontend
+def get_update():
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
 
-def get_streak(file_path=streak_file):
-    try:
-        with open(file_path, 'r') as file:
-            streak = int(file.read().strip())
-    except (FileNotFoundError, ValueError):
-        streak = 0
-    return streak
+    cur.execute("SELECT streak FROM history ORDER BY id DESC LIMIT 1")
+    streak = cur.fetchone()
 
-def get_highscore(file_path=highscore_file):
-    try:
-        with open(file_path, 'r') as file:
-            highscore = int(file.read().strip())
-    except (FileNotFoundError, ValueError):
-        highscore = 0
-    return highscore
+    cur.execute("SELECT score FROM history ORDER BY score DESC LIMIT 1")
+    highscore = cur.fetchone()
 
-def get_current_score(file_path=score_file):
-    try:
-        with open(file_path, 'r') as file:
-            score = int(file.read().strip())
-    except (FileNotFoundError, ValueError):
-        score = 0
-    return score
+    cur.execute("SELECT score FROM history ORDER BY id DESC LIMIT 1")
+    score = cur.fetchone()
+    
+    cur.close()
+    conn.close()
+    if streak is None:
+        return 0, 0, 0  # no data yet
+    return streak[0], highscore[0], score[0]
 
+# Saves new alarm time to config file
 def save_alarm_time(new_alarm_time, file_path=config_file):
     with open(file_path, 'r') as file:
         data = json.load(file)
@@ -73,6 +80,7 @@ def save_alarm_time(new_alarm_time, file_path=config_file):
         json.dump(data, file, indent=4)
     return
 
+# Saves new clockout time to config file
 def save_clockout_time(new_clockout_time, file_path=config_file):
     with open(file_path, 'r') as file:
         data = json.load(file)
@@ -83,20 +91,98 @@ def save_clockout_time(new_clockout_time, file_path=config_file):
         json.dump(data, file, indent=4)
     return
 
+# Loads alarm time from config file
 def load_alarm_time(file_path=config_file):
     with open(file_path, "r") as f:
         data = json.load(f)
     return data.get("alarm_time", "00:00")
 
+# Checks if current time is within the allowed clockout range
+def is_clockout_in_range(start, end, current):
+    current = str(current)
+    start = str(start)
+    end = str(end)
+
+    if start <= end:
+        return start <= current <= end
+    else:
+        return start <= current or current <= end
+
+# Processes clockout action and updates database accordingly
+def clockout_action():
+    date_of_alarm = None
+    clockout_completed = None
+
+    allowed_time_before_amount = 4 # Hours
+
+    alarm_time, clockout_time = get_config()
+
+    alarm_time = datetime.strptime(alarm_time, "%H:%M").time()
+    clockout_time_full = datetime.strptime(clockout_time, "%H:%M")
+    clockout_time = datetime.strptime(clockout_time, "%H:%M").time()
+    
+    current_time_full = datetime.now()
+    current_time_only = datetime.strptime(current_time_full.strftime("%H:%M"), "%H:%M").time()
+    current_time = datetime.now().time()
+
+    allowed_time_before = (clockout_time_full - timedelta(hours=allowed_time_before_amount)).time()
+    allowed_time_before = datetime.strptime(allowed_time_before.strftime("%H:%M"), "%H:%M").time()
+
+    clockout_completed = is_clockout_in_range(allowed_time_before, clockout_time, current_time_only) 
+
+    if clockout_completed:
+
+        # Determine the date for the alarm entry
+        if current_time < alarm_time:
+            date_of_alarm = date.today()
+        else:
+            date_of_alarm = date.today() + timedelta(days=1)
+
+        conn = sqlite3.connect(db_file)
+        cur = conn.cursor()
+
+        cur.execute("SELECT streak, date FROM history ORDER BY id DESC LIMIT 1")
+        row = cur.fetchone() # get previous streak
+
+        if row is None or row[1] != str(date_of_alarm - timedelta(days=1)):
+            previous_streak = 0  # no previous entries or not consecutive day
+        else:    
+            previous_streak = row[0]
+        new_streak = previous_streak + 1 # Increment streak
+
+        data = [date_of_alarm, clockout_completed, new_streak]
+
+        try:
+            cur.execute("""
+                INSERT INTO history (date, clockout, streak)
+                VALUES (?, ?, ?)
+            """, data)
+
+            conn.commit()
+
+        except sqlite3.IntegrityError as e:
+            print("Error inserting clockout data:", e)
+
+        cur.close()
+        conn.close()
+
+    else:
+        print("Clockout action not in allowed time range.")
+
+    return
+
+# Plays alarm sound (placeholder function)
 def play_sound():
     print("Playing sound...")
     # todo: implement actual sound playing logic here
 
+# Stops alarm sound (placeholder function)
 def stop_alarm_playing():
     print("Stopping alarm sound...")
     # todo: implement actual sound stopping logic here
     return
 
+# Watches for alarm time and triggers alarm sound when time matches 
 def watch_alarm():
     last_triggered_minute = None
     while True:
@@ -115,17 +201,146 @@ def watch_alarm():
 
         time.sleep(1)
 
+def get_current_streak():
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
+
+    cur.execute("SELECT streak, date FROM history ORDER BY id DESC LIMIT 1")
+    row = cur.fetchone() # get previous streak
+
+    cur.close()
+    conn.close()
+
+    if row is None or row[1] != str(date.today() - timedelta(days=1)):
+        return 0  # no previous entries or not consecutive day
+    else:
+        return row[0]
+
+def get_multiplier():
+    previous_streak = get_current_streak()
+
+    date_today = date.today()
+
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
+
+    cur.execute("SELECT clockout, date FROM history ORDER BY id DESC LIMIT 1")
+    row = cur.fetchone() # get previous streak
+
+    cur.close()
+    conn.close()
+
+    if row is None or row[1] != str(date_today) or row[0] == 0:
+        previous_streak = 0  # no previous entries or clockout not completed today
+
+    if previous_streak > 0:
+        multiplier_amount = int(previous_streak) / 10
+        multiplier = 1 + multiplier_amount
+    else:
+        multiplier = 1
+
+    return multiplier
+
 def stop_alarm_calc(time_str, seconds_str):
     stop_alarm_playing()
     alarm_time = load_alarm_time()
     if time_str == alarm_time:
         print(f"Alarm stopped after {seconds_str} seconds.")
-        # todo: implement logic to update history, streak, highscore here
+        points_deducted = int(seconds_str) * 16  # Example: 16 points deducted per second
+        points_pre_multiplier = 1000 - points_deducted
+        multiplier = get_multiplier()
+        final_points = int(points_pre_multiplier * multiplier)
+        
+        todays_date = date.today()
+
+        conn = sqlite3.connect(db_file)
+        cur = conn.cursor()
+
+        cur.execute("SELECT date FROM history ORDER BY id DESC LIMIT 1")
+        row = cur.fetchone() # get previous date
+
+        cur.close()
+        conn.close()
+
+        if row is None or row[0] != str(todays_date): # No entry for today yet
+            date_today = str(todays_date)
+            clockout_completed = 0
+            alarm_stopped = 1
+            stop_time = int(seconds_str)
+            streak = 1
+            score = final_points
+
+            data = [date_today, clockout_completed, alarm_stopped, stop_time, streak, score]
+
+            conn = sqlite3.connect(db_file)
+            cur = conn.cursor()
+
+            cur.execute("""
+                INSERT INTO history (date, clockout, alarmStopped, stopTime, streak, score)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, data)
+            conn.commit()
+
+            cur.close()
+            conn.close()
+
+        else:
+            # Update existing entry for today
+            alarm_stopped = 1
+            stop_time = int(seconds_str)
+            score = final_points
+            date_today = str(todays_date)
+
+            data = [alarm_stopped, stop_time, score, date_today]
+
+            conn = sqlite3.connect(db_file)
+            cur = conn.cursor()
+
+            cur.execute("""
+                UPDATE history
+                SET alarmStopped = ?, stopTime = ?, score = ?
+                WHERE date = ?
+            """, data)
+            conn.commit()
+
+            cur.close()
+            conn.close()
+
+
     else:
         print("Other")
+        # todo: set streak of day to 0 in database
+        conn = sqlite3.connect(db_file)
+        cur = conn.cursor()
+
+        cur.execute("SELECT date, id FROM history ORDER BY id DESC LIMIT 1")
+        row = cur.fetchone() # get previous date
+
+        cur.close()
+        conn.close()
+
+        if row[0] == str(date.today()):
+            alarm_stopped = 0
+            data = [alarm_stopped, row[0]]
+            conn = sqlite3.connect(db_file)
+            cur = conn.cursor()
+
+            cur.execute("""
+                UPDATE history
+                SET alarmStopped = ?
+                WHERE date = ?
+            """, data)
+            conn.commit()
+
+            cur.close()
+            conn.close()
+
+        else:
+            pass
+
     return
 
-def habit_done(habit_id, file_path=history_file):
+def habit_done(habit_id):
     # todo: implement habit tracking logic here
     print(f"Habit {habit_id} marked as done.")
     return
