@@ -2,11 +2,19 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify, abort 
 import threading
 
-from modules import *
-from dbsetup import setup_database
+from modules.setup_and_update import *
+from modules.alarm_thread import *
+from modules.stopping_alarm import *
+from modules.handle_clockout import *
+from modules.handle_habits import * 
+
+from db_setup import setup_database
+from config_setup import setup_config
 
 # Create DB and table if it doesn't exist
 setup_database()
+# Create config file if it doesn't exist
+setup_config()
 
 app = Flask(__name__)
 
