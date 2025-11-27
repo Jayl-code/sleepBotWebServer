@@ -1,7 +1,8 @@
 # Imports
-import json
 from datetime import datetime, date, timedelta
 import sqlite3
+
+from modules.get_config import *
 
 # File paths
 config_file = 'config.json'
@@ -15,7 +16,8 @@ def clockout_action():
 
     allowed_time_before_amount = 4 # Hours
 
-    alarm_time, clockout_time = get_config()
+    alarm_time = get_alarm_time()
+    clockout_time = get_clockout_time()
 
     alarm_time = datetime.strptime(alarm_time, "%H:%M").time()
     clockout_time_full = datetime.strptime(clockout_time, "%H:%M")
@@ -82,43 +84,3 @@ def is_clockout_in_range(start, end, current):
     else:
         return start <= current or current <= end
     
-# Sends config data (alarm time, clockout time) to frontend and sets defaults if config file is empty
-def get_config(file_path=config_file):
-    defaults = {
-    "alarm_time": "00:00",
-    "clockout_time": "00:00",
-    "alarm_days": {
-        "monday": True,
-        "tuesday": True,
-        "wednesday": True,
-        "thursday": True,
-        "friday": True,
-        "saturday": True,
-        "sunday": True
-    },
-    "clockout_days": {
-        "monday": True,
-        "tuesday": True,
-        "wednesday": True,
-        "thursday": True,
-        "friday": True,
-        "saturday": True,
-        "sunday": True
-    }
-}
-    with open(file_path, 'r') as file:
-        content = file.read().strip()
-        if not content:  # empty file
-            data = {}
-        else:
-            data = json.loads(content)
-
-    if not data:
-        with open(file_path, "w") as f:
-            json.dump(defaults, f, indent=4)
-        data = defaults
-    
-    alarm_time = data.get('alarm_time')
-    clockout_time = data.get('clockout_time')
-    
-    return alarm_time, clockout_time

@@ -2,11 +2,13 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify, abort 
 import threading
 
-from modules.setup_and_update import *
+from modules.get_config import *
 from modules.alarm_thread import *
 from modules.stopping_alarm import *
 from modules.handle_clockout import *
 from modules.handle_habits import * 
+from modules.get_update import *
+from modules.update_config import *
 
 from db_setup import setup_database
 from config_setup import setup_config
@@ -21,13 +23,13 @@ app = Flask(__name__)
 # Home route, renders the main page
 @app.route('/')
 def home():
-    alarm_time, clockout_time = get_config() # get alarm and clockout times from config to be rendered in frontend
-    # history = get_history() // todo: add history display in frontend and 'history=history' in render_template
+    alarm_time = get_alarm_time()         # get alarm and clockout times from config to be rendered in frontend
+    clockout_time = get_clockout_time()
     return render_template('index.html', alarm_time=alarm_time, clockout_time=clockout_time,) 
 
 # Called by AJAX (JS) to update streak and highscore without refreshing the page
 @app.route('/update_data')
-def update_data():
+def update_data(): #todo: add history to update and display in frontend
     streak, highscore, current_score = get_update() # get current streak, highscore, and score to be sent to frontend
     return jsonify({
         "streak": streak,
