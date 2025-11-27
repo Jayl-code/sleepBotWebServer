@@ -4,13 +4,15 @@ import time
 from datetime import datetime, date, timedelta
 import sqlite3
 
+from modules.get_config import get_alarm_time
+
 # File paths
 config_file = 'config.json'
 db_file = 'database.db'
 
 def stop_alarm_calc(time_str, seconds_str):
     stop_alarm_playing()
-    alarm_time = load_alarm_time()
+    alarm_time = get_alarm_time()
     if time_str == alarm_time:
         print(f"Alarm stopped after {seconds_str} seconds.")
         points_deducted = int(seconds_str) * 16  # Example: 16 points deducted per second
@@ -112,12 +114,6 @@ def stop_alarm_playing():
     print("Stopping alarm sound...")
     # todo: implement actual sound stopping logic here
     return
-
-# Loads alarm time from config file
-def load_alarm_time(file_path=config_file):
-    with open(file_path, "r") as f:
-        data = json.load(f)
-    return data.get("alarm_time", "00:00")
 
 def get_current_streak():
     conn = sqlite3.connect(db_file)
