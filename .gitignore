@@ -3,3 +3,5 @@
 *.db
 dummy_data.py
 test.py
+config.json
+/modules/__pycache__
