@@ -5,6 +5,8 @@ from datetime import datetime, date, timedelta
 import sqlite3
 
 from modules.get_config import get_alarm_time
+from modules.get_from_db import get_current_streak
+from modules.handle_sounds import stop_alarm_playing
 
 # File paths
 config_file = 'config.json'
@@ -12,7 +14,9 @@ db_file = 'database.db'
 
 def stop_alarm_calc(time_str, seconds_str):
     stop_alarm_playing()
+
     alarm_time = get_alarm_time()
+
     if time_str == alarm_time:
         print(f"Alarm stopped after {seconds_str} seconds.")
         points_deducted = int(seconds_str) * 16  # Example: 16 points deducted per second
@@ -108,27 +112,6 @@ def stop_alarm_calc(time_str, seconds_str):
             pass
 
     return
-
-# Stops alarm sound (placeholder function)
-def stop_alarm_playing():
-    print("Stopping alarm sound...")
-    # todo: implement actual sound stopping logic here
-    return
-
-def get_current_streak():
-    conn = sqlite3.connect(db_file)
-    cur = conn.cursor()
-
-    cur.execute("SELECT streak, date FROM history ORDER BY id DESC LIMIT 1")
-    row = cur.fetchone() # get previous streak
-
-    cur.close()
-    conn.close()
-
-    if row is None or row[1] != str(date.today() - timedelta(days=1)):
-        return 0  # no previous entries or not consecutive day
-    else:
-        return row[0]
 
 def get_multiplier():
     previous_streak = get_current_streak()

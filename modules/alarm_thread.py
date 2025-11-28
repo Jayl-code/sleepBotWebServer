@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 
 from modules.get_config import get_alarm_time
+from modules.handle_sounds import play_sound
 
 
 # Watches for alarm time and triggers alarm sound when time matches 
@@ -23,9 +24,3 @@ def watch_alarm():
             print("Error:", e)
 
         time.sleep(1) #todo: variable sleep time
-
-# Plays alarm sound (placeholder function)
-def play_sound():
-    print("Playing sound...")
-    # todo: implement actual sound playing logic here
-    return

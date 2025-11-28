@@ -14,28 +14,31 @@ def clockout_action():
     date_of_alarm = None
     clockout_completed = None
 
-    allowed_time_before_amount = 4 # Hours
+    allowed_time_before_amount = 4  # Hours
 
-    alarm_time = get_alarm_time()
-    clockout_time = get_clockout_time()
+    # Get times
+    alarm_str = get_alarm_time()
+    clockout_str = get_clockout_time()
 
-    alarm_time = datetime.strptime(alarm_time, "%H:%M").time()
-    clockout_time_full = datetime.strptime(clockout_time, "%H:%M")
-    clockout_time = datetime.strptime(clockout_time, "%H:%M").time()
-    
-    current_time_full = datetime.now()
-    current_time_only = datetime.strptime(current_time_full.strftime("%H:%M"), "%H:%M").time()
-    current_time = datetime.now().time()
+    # Parse HH:MM to time and datetime
+    alarm_time = datetime.strptime(alarm_str, "%H:%M").time()
+    clockout_dt = datetime.strptime(clockout_str, "%H:%M")   # full datetime
+    clockout_time = clockout_dt.time()
 
-    allowed_time_before = (clockout_time_full - timedelta(hours=allowed_time_before_amount)).time()
-    allowed_time_before = datetime.strptime(allowed_time_before.strftime("%H:%M"), "%H:%M").time()
+    # Current time
+    now = datetime.now()
+    now_time = now.time()
 
-    clockout_completed = is_clockout_in_range(allowed_time_before, clockout_time, current_time_only) 
+    # Allowed time window (as datetime + converted to time)
+    allowed_before_time = (clockout_dt - timedelta(hours=allowed_time_before_amount)).time()
 
-    if clockout_completed:
+    # Check if current time is within allowed clockout range
+    clockout_in_range = is_clockout_in_range(allowed_before_time, clockout_time, now_time)
+
+    if clockout_in_range:
 
         # Determine the date for the alarm entry
-        if current_time < alarm_time:
+        if now_time < alarm_time:
             date_of_alarm = date.today()
         else:
             date_of_alarm = date.today() + timedelta(days=1)
