@@ -34,10 +34,17 @@ body{
     padding: 1rem;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(19, 159, 156, 0.7);
-    width: 300px;
     margin-bottom: 1rem;
     text-align: center;
     align-items: center;
+}
+
+.scores {
+    width: 300px;
+}
+
+.streak {
+    width: 150px;
 }
 
 .streak_row {
@@ -67,4 +74,3 @@ button {
     font-size: 1rem;
     
 }
-
