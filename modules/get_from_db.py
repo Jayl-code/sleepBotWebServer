@@ -1,19 +1,17 @@
-from datetime import datetime, date, timedelta
+# Imports
 import sqlite3
 
+# File paths
 db_file = 'database.db'
-
-def get_current_streak():
+    
+def get_last_history():
     conn = sqlite3.connect(db_file)
     cur = conn.cursor()
 
-    cur.execute("SELECT streak, date FROM history ORDER BY id DESC LIMIT 1")
-    row = cur.fetchone() # get previous streak
+    cur.execute("SELECT date, id, streak, clockout, alarmAttempted FROM history ORDER BY id DESC LIMIT 1")
+    row = cur.fetchone() # get previous date and the id of it
 
     cur.close()
     conn.close()
 
-    if row is None or row[1] != str(date.today() - timedelta(days=1)):
-        return 0  # no previous entries or not consecutive day
-    else:
-        return row[0]
+    return row

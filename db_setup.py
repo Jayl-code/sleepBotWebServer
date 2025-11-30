@@ -18,7 +18,8 @@ def setup_database():
         habit3 INTEGER DEFAULT 0 CHECK(habit3 IN (0, 1)),
         habit4 INTEGER DEFAULT 0 CHECK(habit4 IN (0, 1)),
         streak INTEGER DEFAULT 0,
-        score INTEGER DEFAULT 0
+        score INTEGER DEFAULT 0,
+        alarmAttempted INTEGER DEFAULT 0 CHECK(alarmAttempted IN (0, 1))
         )
     """)
 
