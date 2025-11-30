@@ -17,10 +17,11 @@ def watch_alarm():
 
             # Avoid triggering multiple times per minute
             if current_str == alarm_str and last_triggered_minute != current_str:
+                #todo: handle off days whan alarm shouldnt trigger
                 play_sound()
                 last_triggered_minute = current_str
 
         except Exception as e:
             print("Error:", e)
 
-        time.sleep(1) #todo: variable sleep time
+        time.sleep(1)

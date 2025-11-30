@@ -8,5 +8,5 @@ def stop_alarm_playing():
 # Plays alarm sound (placeholder function)
 def play_sound():
     print("Playing sound...")
-    # todo: implement actual sound playing logic here
+    # todo: implement actual sound playing logic here and handle if sound is already playing
     return
