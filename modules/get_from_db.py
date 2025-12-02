@@ -15,3 +15,16 @@ def get_last_history():
     conn.close()
 
     return row
+
+def get_habits_by_date(date):
+    date = str(date)
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
+
+    cur.execute("SELECT habit1, habit2, habit3, habit4 FROM history WHERE date = ? LIMIT 1", (date,))
+    row = cur.fetchone() # get todays habits
+
+    cur.close()
+    conn.close()
+    
+    return row
