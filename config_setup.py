@@ -17,17 +17,9 @@ def setup_config(file_path=config_file):
         "friday": True,
         "saturday": True,
         "sunday": True
-    },
-    "clockout_days": {
-        "monday": True,
-        "tuesday": True,
-        "wednesday": True,
-        "thursday": True,
-        "friday": True,
-        "saturday": True,
-        "sunday": True
     }
 }
+    
     try:
         with open(file_path, 'x') as file:
             json.dump(defaults, file, indent=4)
