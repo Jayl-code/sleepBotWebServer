@@ -1,7 +1,7 @@
 # Imports
 from datetime import datetime, date, timedelta
 
-from modules.get_config import *
+from modules.get_config import get_alarm_time, get_clockout_time, get_last_required_day
 from modules.get_from_db import get_dates_history
 from modules.update_db import insert_history
 
@@ -38,8 +38,10 @@ def clockout_action():
     if alreadyClockedOut: 
         print("Clockout already recorded for today.")
         return
-    
-    lastHistory = get_dates_history(get_last_required_day(), ["streak"])
+    if not get_last_required_day():
+        lastHistory = None
+    else:
+        lastHistory = get_dates_history(get_last_required_day(), ["streak"])
 
     # Allowed time window (as datetime + converted to time)
     allowed_before_time = (clockout_dt - timedelta(hours=allowed_time_before_amount)).time()
