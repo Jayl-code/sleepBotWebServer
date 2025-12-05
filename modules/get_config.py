@@ -55,7 +55,6 @@ def get_last_required_day(file_path=config_file):
     for i in range(7):
         checking_day_name = index_to_weekday[checking_index]
         if data["alarm_days"][checking_day_name] == True:
-            print(checking_day_name)
             return get_date_of_last_day(checking_day_name)
         checking_index = (checking_index - 1) % 7
 
