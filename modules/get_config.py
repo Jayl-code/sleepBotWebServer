@@ -1,5 +1,6 @@
 # Imports
 import json
+from datetime import date, timedelta
 
 # File paths
 config_file = 'config.json'
@@ -23,3 +24,6 @@ def get_clockout_time(file_path=config_file):
     
     return clockout_time
 
+def get_last_required_day():
+    #todo update to get the date of the last needed day
+    return date.today() - timedelta(days=1)

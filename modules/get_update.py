@@ -22,7 +22,11 @@ def get_update():
     if highscore is None:
         return 0, 0, 0  # no data yet
     
-    if row[0] != str(date.today()) or row[0] != str(date.today() - timedelta(days=1)): 
+    today = str(date.today())
+    yesterday = str(date.today() - timedelta(days=1))
+    tomorrow = str(date.today() + timedelta(days=1))
+    
+    if row[0] not in (today, yesterday, tomorrow): 
         return 0, highscore[0], 0
     
     return row[1], highscore[0], row[2]

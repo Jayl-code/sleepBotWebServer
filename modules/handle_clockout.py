@@ -2,7 +2,7 @@
 from datetime import datetime, date, timedelta
 
 from modules.get_config import *
-from modules.get_from_db import get_last_history
+from modules.get_from_db import get_dates_history
 from modules.update_db import insert_history
 
 # File paths
@@ -13,8 +13,6 @@ db_file = 'database.db'
 # Processes clockout action and updates database accordingly
 def clockout_action():
     allowed_time_before_amount = 4  # Hours
-
-    lastHistory = get_last_history()
 
     # Get times
     alarm_str = get_alarm_time()
@@ -35,9 +33,13 @@ def clockout_action():
     else:
         date_of_alarm = date.today() + timedelta(days=1)
 
-    if lastHistory and lastHistory[0] == str(date_of_alarm): 
+    alreadyClockedOut = get_dates_history(date_of_alarm, ["id"])
+
+    if alreadyClockedOut: 
         print("Clockout already recorded for today.")
         return
+    
+    lastHistory = get_dates_history(get_last_required_day(), ["streak"])
 
     # Allowed time window (as datetime + converted to time)
     allowed_before_time = (clockout_dt - timedelta(hours=allowed_time_before_amount)).time()
@@ -47,10 +49,10 @@ def clockout_action():
 
     if clockout_in_range:
 
-        if lastHistory is None or lastHistory[0] != str(date_of_alarm - timedelta(days=1)):
+        if lastHistory is None:
             previous_streak = 0  # no previous entries or not consecutive day
         else:    
-            previous_streak = lastHistory[2] # get previous streak
+            previous_streak = lastHistory[0] # get previous streak
         new_streak = previous_streak + 1 # Increment streak
 
         insert_history(
