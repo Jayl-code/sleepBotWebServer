@@ -5,14 +5,14 @@ import sqlite3
 db_file = 'database.db'
 
 
-def get_dates_history(date, columns): # Input date then a dict of the things to get eg. get_dates_history(date, ["streak", "score"])
+def get_dates_history(date, columns): # Input date then a list of the things to get eg. get_dates_history(date, ["streak", "score"])
     conn = sqlite3.connect(db_file)
     cur = conn.cursor()
 
     if not columns:
         raise ValueError("At least one column must be specified.")
 
-    # Build safe column list
+    # Make column list
     col_clause = ", ".join(columns)
 
     query = f"""

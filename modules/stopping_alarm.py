@@ -4,7 +4,7 @@ from datetime import date
 from modules.get_config import get_alarm_time
 from modules.get_from_db import get_dates_history
 from modules.handle_sounds import stop_alarm_playing
-from modules.update_db import *
+from modules.update_db import insert_history, update_today
 
 # File paths
 config_file = 'config.json'
@@ -17,8 +17,8 @@ def stop_alarm_calc(time_str, seconds_str):
     dateToday = str(date.today())
     seconds = int(seconds_str)
 
+    # To see of clockout was compleated today and then if alarm has already been attempted
     todays_history = get_dates_history(dateToday, ["alarmAttempted", "streak"])
-    
     historyToday = True if todays_history else False
 
     if historyToday and todays_history[0] == 1:
@@ -62,7 +62,6 @@ def stop_alarm_calc(time_str, seconds_str):
         update_today(
             date=dateToday,
             alarmStopped=0,
-            stopTime=0,
             score=0,
             streak=0,
             alarmAttempted=1
@@ -72,7 +71,6 @@ def stop_alarm_calc(time_str, seconds_str):
         insert_history(
             date=dateToday,
             alarmStopped=0,
-            stopTime=0,
             streak=0,
             score=0,
             alarmAttempted=1
@@ -82,8 +80,8 @@ def stop_alarm_calc(time_str, seconds_str):
 
     return
 
-def get_multiplier(last_history,):
-    current_streak = last_history[1]
+def get_multiplier(history):
+    current_streak = history[1]
 
     if current_streak > 0:
         multiplier_amount = int(current_streak) / 10

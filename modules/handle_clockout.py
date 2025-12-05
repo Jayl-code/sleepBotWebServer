@@ -38,6 +38,7 @@ def clockout_action():
     if alreadyClockedOut: 
         print("Clockout already recorded for today.")
         return
+    
     if not get_last_required_day():
         lastHistory = None
     else:

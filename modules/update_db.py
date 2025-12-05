@@ -46,7 +46,7 @@ def update_today(**kwargs):
     values = []
 
     for key, value in kwargs.items():
-        if key == "dateToday":
+        if key == "date":
             continue  # don't update this field
         set_parts.append(f"{key} = ?")
         values.append(value)

@@ -2,20 +2,19 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify, abort 
 import threading
 
-from modules.get_config import *
-from modules.alarm_thread import *
-from modules.stopping_alarm import *
-from modules.handle_clockout import *
-from modules.handle_habits import * 
-from modules.get_update import *
-from modules.update_config import *
+from modules.get_config import get_alarm_time, get_clockout_time
+from modules.alarm_thread import watch_alarm
+from modules.stopping_alarm import stop_alarm_calc
+from modules.handle_clockout import clockout_action
+from modules.handle_habits import habit_done
+from modules.get_update import get_update
+from modules.update_config import save_alarm_time, save_clockout_time
 
 from db_setup import setup_database
 from config_setup import setup_config
 
-# Create DB and table if it doesn't exist
+# Create config, DB and table if they don't exist
 setup_database()
-# Create config file if it doesn't exist
 setup_config()
 
 app = Flask(__name__)

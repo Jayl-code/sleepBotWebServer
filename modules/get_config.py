@@ -15,7 +15,7 @@ day_index = {
         "sunday": 6
     }
 
-# Gets alarm and clockout times from the config file to send to the frontend
+# Gets alarm and clockout times from the config file
 def get_alarm_time(file_path=config_file):
     with open(file_path, 'r') as file:
         content = file.read().strip()
@@ -34,6 +34,7 @@ def get_clockout_time(file_path=config_file):
     
     return clockout_time
 
+# Convert day name into date of its last day
 def get_date_of_last_day(target_day_name):
     target = day_index[target_day_name.lower()]
     today = date.today().weekday()  # number 0–6

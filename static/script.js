@@ -1,4 +1,4 @@
-// Toggle visibility of forms
+// ----------Toggle visibility of forms ----------------------------------
 
 const alarmSettingsBtn = document.getElementById("alarm_settings_btn");
     const alarmForm = document.getElementById("alarm_form");
@@ -14,7 +14,7 @@ const clockoutSettingsBtn = document.getElementById("clockout_settings_btn");
       clockoutForm.style.display = clockoutForm.style.display === "none" ? "block" : "none";
     });
 
-// Polling for updates
+// ----------Polling for updates -----------------------------------------
 
 let intervalId = null;
 
