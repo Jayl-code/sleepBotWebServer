@@ -2,6 +2,8 @@
 import sqlite3
 from datetime import date, timedelta
 
+from modules.get_config import get_last_required_day
+
 # File paths
 db_file = 'database.db'
 
@@ -23,10 +25,10 @@ def get_update():
         return 0, 0, 0  # no data yet
     
     today = str(date.today())
-    yesterday = str(date.today() - timedelta(days=1))
     tomorrow = str(date.today() + timedelta(days=1))
+    last_day_needed = get_last_required_day()
     
-    if row[0] not in (today, yesterday, tomorrow): 
+    if row[0] not in (today, tomorrow, last_day_needed): 
         return 0, highscore[0], 0
     
     return row[1], highscore[0], row[2]
