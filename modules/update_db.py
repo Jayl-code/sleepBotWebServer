@@ -32,7 +32,7 @@ def insert_history(**kwargs):
 
     return
 
-def update_today(**kwargs):
+def update_today(**kwargs): # Call with date:(Date of row to update), (row to update):(New value)
     conn = sqlite3.connect(db_file)
     cur = conn.cursor()
 
@@ -70,6 +70,18 @@ def update_today(**kwargs):
     conn.commit()
 
     cur.close()
+    conn.close()
+
+    return
+
+def delete_row(id):
+
+    conn = sqlite3.connect(db_file)
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM history WHERE id = ?", (id,))
+
+    conn.commit()
     conn.close()
 
     return

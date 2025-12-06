@@ -38,3 +38,12 @@ def get_current_highscore():
     conn.close()
 
     return highscore[0]
+
+def get_all_history():
+    conn = sqlite3.connect(db_file)
+    conn.row_factory = sqlite3.Row 
+
+    rows = conn.execute("SELECT * FROM history").fetchall()
+    conn.close()
+
+    return rows
