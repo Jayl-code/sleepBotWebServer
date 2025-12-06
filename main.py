@@ -7,7 +7,7 @@ from modules.alarm_thread import watch_alarm
 from modules.stopping_alarm import stop_alarm_calc
 from modules.handle_clockout import clockout_action
 from modules.handle_habits import habit_done
-from modules.get_update import get_update
+from modules.get_update import get_highscore, get_score_and_streak, get_habits
 from modules.update_config import save_alarm_time, save_clockout_time
 
 from db_setup import setup_database
@@ -24,16 +24,30 @@ app = Flask(__name__)
 def home():
     alarm_time = get_alarm_time()         # get alarm and clockout times from config to be rendered in frontend
     clockout_time = get_clockout_time()
-    return render_template('index.html', alarm_time=alarm_time, clockout_time=clockout_time,) 
+    return render_template('index.html', alarm_time=alarm_time, clockout_time=clockout_time) 
 
 # Called by AJAX (JS) to update streak and highscore without refreshing the page
-@app.route('/update_data')
-def update_data(): #todo: add history to update and display in frontend
-    streak, highscore, current_score = get_update() # get current streak, highscore, and score to be sent to frontend
+@app.route('/update_highscore')
+def update_highscore(): #todo: add history to update and display in frontend
+    highscore = get_highscore() # get current highscore to be sent to frontend
     return jsonify({
-        "streak": streak,
-        "highscore": highscore,
-        "current_score": current_score
+        "highscore": highscore
+    })
+
+@app.route('/update_score_and_streak')
+def update_score_and_streak():
+    score, streak = get_score_and_streak()
+    return jsonify({
+        "score": score,
+        "streak": streak
+    })
+
+@app.route('/update_habits')
+def update_habits():
+    habit_values, habit_is_today = get_habits()
+    return jsonify({
+        "values": habit_values,
+        "is_today": habit_is_today
     })
 
 # Route to set a new alarm time, called by alarm edit form

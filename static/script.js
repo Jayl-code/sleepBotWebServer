@@ -20,22 +20,44 @@ let intervalId = null;
 
 function updateData() {
   try {
-    fetch('/update_data')
+    fetch('/update_highscore')
       .then(response => response.json())
       .then(data => {
-        if ("streak" in data) {
-        document.getElementById("streak").textContent =
-          "Streak: " + data.streak;
-      }
-      if ("highscore" in data) {
+        if ("highscore" in data) {
         document.getElementById("highscore").textContent =
           "High Score: " + data.highscore;
       }
-      if ("current_score" in data) {
+      });
+    fetch('/update_score_and_streak')
+      .then(response => response.json())
+      .then(data => {
+        if ("score" in data) {
         document.getElementById("current_score").textContent =
-          "Current Score: " + data.current_score;
+          "Current Score: " + data.score;
+      }
+      if ("streak" in data) {
+        document.getElementById("streak").textContent =
+          "Streak: " + data.streak;
       }
       });
+      fetch("/update_habits")
+        .then(response => response.json())
+        .then(data => {
+            // Data from Flask
+            const habits = data.values;
+            const isToday = data.is_today;
+
+            // Example: update HTML elements
+            for (const habit in habits) {
+                document.getElementById(habit).textContent = habits[habit];
+
+                if (isToday[habit]) {
+                    document.getElementById(habit).style.color = "white";
+                } else {
+                    document.getElementById(habit).style.color = "black";
+                }
+            }
+        });
   } catch (error) {
     console.error('Error fetching data:', error);
   }

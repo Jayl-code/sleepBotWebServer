@@ -26,3 +26,15 @@ def get_dates_history(date, columns): # Input date then a list of the things to 
     conn.close()
 
     return row
+
+def get_current_highscore():
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
+
+    cur.execute("SELECT score FROM history ORDER BY score DESC LIMIT 1")
+    highscore = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    return highscore[0]
