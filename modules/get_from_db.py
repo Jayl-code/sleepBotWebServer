@@ -37,7 +37,7 @@ def get_current_highscore():
     cur.close()
     conn.close()
 
-    return highscore[0]
+    return highscore
 
 def get_all_history():
     conn = sqlite3.connect(db_file)

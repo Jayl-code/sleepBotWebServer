@@ -12,7 +12,8 @@ def get_highscore():
     highscore = get_current_highscore() 
     if highscore is None:
         return 0 
-    return highscore
+    
+    return highscore[0]
 
 def get_score_and_streak():
     today = str(date.today())
