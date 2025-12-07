@@ -11,6 +11,7 @@
 <h1>All History</h1>
 
 <table border="1" cellpadding="8">
+    {% if rows and rows|length > 0 %}
     <tr>
         {% for col in rows[0].keys() %}
             <th>{{ col }}</th>
@@ -24,6 +25,10 @@
         {% endfor %}
     </tr>
     {% endfor %}
+{% else %}
+    <tr><td colspan="100%">No data available</td></tr>
+{% endif %}
+        
 </table>
 
 Delete row
