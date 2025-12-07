@@ -5,49 +5,83 @@ import sqlite3
 db_file = 'database.db'
 
 def insert_history(**kwargs):
-        conn = sqlite3.connect(db_file)
-        cur = conn.cursor()
-
-        cur.execute("""
-                INSERT INTO history 
-                (date, clockout, alarmStopped, stopTime, streak, score, alarmAttempted)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (
-                kwargs.get("date"),
-                kwargs.get("clockout", 0),
-                kwargs.get("alarmStopped", 0),
-                kwargs.get("stopTime", 0),
-                kwargs.get("streak", 0),
-                kwargs.get("score", 0),
-                kwargs.get("alarmAttempted", 0)
-            ))
-        conn.commit()
-
-        cur.close()
-        conn.close()
-
-        return
-
-def update_today(**kwargs):
     conn = sqlite3.connect(db_file)
     cur = conn.cursor()
 
-    cur.execute("""
-                UPDATE history
-                SET alarmStopped = ?, stopTime = ?, score = ?, streak = ?, alarmAttempted = ?
-                WHERE date = ?
-            """, (
-                kwargs.get("alarmStopped", 0),
-                kwargs.get("stopTime", 0),
-                kwargs.get("score", 0),
-                kwargs.get("streak", 0),
-                kwargs.get("alarmAttempted", 0),
-                kwargs.get("dateToday")
-            ))
-    
+    # Cannot insert without date
+    date = kwargs.get("date")
+    if not date:
+        raise ValueError("date is required for insert_history()")
+
+    # Only use the keys that were passed in
+    columns = ", ".join(kwargs.keys())
+    placeholders = ", ".join(["?"] * len(kwargs))
+    values = tuple(kwargs.values())
+
+    # Make dynamic query
+    query = f"""
+        INSERT INTO history ({columns})
+        VALUES ({placeholders})
+    """
+
+    cur.execute(query, values)
     conn.commit()
 
     cur.close()
+    conn.close()
+
+    return
+
+def update_today(**kwargs): # Call with date:(Date of row to update), (row to update):(New value)
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
+
+    # Cannot update without date
+    date = kwargs.get("date")
+    if not date:
+        raise ValueError("date is required for update_today()")
+
+    # Prepare dynamic SET clause
+    set_parts = []
+    values = []
+
+    for key, value in kwargs.items():
+        if key == "date":
+            continue  # don't update this field
+        set_parts.append(f"{key} = ?")
+        values.append(value)
+
+    # Nothing to update?
+    if not set_parts:
+        cur.close()
+        conn.close()
+        return
+
+    set_clause = ", ".join(set_parts)
+    values.append(date)  # add WHERE date value at the end
+
+    query = f"""
+        UPDATE history
+        SET {set_clause}
+        WHERE date = ?
+    """
+
+    cur.execute(query, tuple(values))
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return
+
+def delete_row(id):
+
+    conn = sqlite3.connect(db_file)
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM history WHERE id = ?", (id,))
+
+    conn.commit()
     conn.close()
 
     return

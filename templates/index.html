@@ -23,6 +23,15 @@
     <div id="current_score" class="value">Current Score: </div>
   </div>
 
+  <div class="habits"> 
+    <div class="habits_row">  
+      <div id="habit1" class="value">0</div>
+      <div id="habit2" class="value">0</div>
+      <div id="habit3" class="value">0</div>
+      <div id="habit4" class="value">0</div>
+    </div>
+  </div>
+
   <div class="times">
     <div class="alarm_time">
       <div id="alarm_time" class="value">
@@ -54,6 +63,17 @@
       </form>
     </div>
   </div>
+
+<div class="day-container">
+  <div class="day-row">
+    {% for day, enabled in days.items() %}
+        <div class="day-box {{ 'on' if enabled else 'off' }}"
+             onclick="toggleDay('{{ day }}', this)">
+            {{ day[0].upper() }}
+        </div>
+    {% endfor %}
+  </div>
+</div>
 
 <script src="{{url_for('static', filename='script.js')}}"></script>
 <script src="https://kit.fontawesome.com/6a06188459.js" crossorigin="anonymous"></script>

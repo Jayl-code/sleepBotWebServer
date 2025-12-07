@@ -1,10 +1,10 @@
 # Imports
-from datetime import date, timedelta
+from datetime import date
 
 from modules.get_config import get_alarm_time
-from modules.get_from_db import *
+from modules.get_from_db import get_dates_history
 from modules.handle_sounds import stop_alarm_playing
-from modules.update_db import *
+from modules.update_db import insert_history, update_today
 
 # File paths
 config_file = 'config.json'
@@ -17,22 +17,18 @@ def stop_alarm_calc(time_str, seconds_str):
     dateToday = str(date.today())
     seconds = int(seconds_str)
 
-    lastHistory = get_last_history()
+    # To see of clockout was compleated today and then if alarm has already been attempted
+    todays_history = get_dates_history(dateToday, ["alarmAttempted", "streak"])
+    historyToday = True if todays_history else False
 
-    if lastHistory and lastHistory[0] == str(date.today() + timedelta(days=1)):
-        print("Future clockout entry exists, cannot stop alarm for today.")
-        return
-    
-    lastHistoryToday = True if lastHistory and lastHistory[0] == dateToday else False
-
-    if lastHistoryToday and lastHistory[4] == 1:
+    if historyToday and todays_history[0] == 1:
         print("Alarm already stopped for today.")
         return
 
     if time_str == alarm_time:
         print(f"Alarm stopped after {seconds} seconds.")
 
-        multiplier, currentStreak = get_multiplier(lastHistory) if lastHistoryToday else (1, 1)
+        multiplier = get_multiplier(todays_history) if historyToday else 1
 
         # Score calculation
         points_deducted = seconds * 16 # 16 points deducted per second
@@ -40,10 +36,9 @@ def stop_alarm_calc(time_str, seconds_str):
         final_score = int(base_points * multiplier)
 
         # If no entry today then create new
-        if not lastHistoryToday:
+        if not historyToday:
             insert_history(
                 date=dateToday,
-                clockout=0,
                 alarmStopped=1,
                 stopTime=seconds,
                 streak=1,
@@ -53,33 +48,29 @@ def stop_alarm_calc(time_str, seconds_str):
         else:
             # Update existing row for today
             update_today(
+                date=dateToday,
                 alarmStopped=1,
                 stopTime=seconds,
                 score=final_score,
-                streak=currentStreak,
-                alarmAttempted=1,
-                dateToday=dateToday
+                alarmAttempted=1
             )
 
         return
     
-    if lastHistoryToday:
+    if historyToday:
         # Update existing row: failed alarm
         update_today(
+            date=dateToday,
             alarmStopped=0,
-            stopTime=0,
             score=0,
             streak=0,
-            alarmAttempted=1,
-            dateToday=dateToday
+            alarmAttempted=1
         )
     else:
         # No row for today yet then insert zeroed-out fail row
         insert_history(
             date=dateToday,
-            clockout=0,
             alarmStopped=0,
-            stopTime=0,
             streak=0,
             score=0,
             alarmAttempted=1
@@ -89,8 +80,8 @@ def stop_alarm_calc(time_str, seconds_str):
 
     return
 
-def get_multiplier(last_history,):
-    current_streak = last_history[2]
+def get_multiplier(history):
+    current_streak = history[1]
 
     if current_streak > 0:
         multiplier_amount = int(current_streak) / 10
@@ -99,4 +90,4 @@ def get_multiplier(last_history,):
         multiplier = 1
     print(multiplier)    
 
-    return multiplier, current_streak
+    return multiplier
