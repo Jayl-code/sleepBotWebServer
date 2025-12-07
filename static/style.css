@@ -27,7 +27,7 @@ body{
     gap: 10px;
 }
 
-.streak, .scores, .habits {
+.streak, .scores, .habits, .day-container {
     display: flex;
     flex-direction: column;
     background-color: #751777;
@@ -39,7 +39,7 @@ body{
     align-items: center;
 }
 
-.scores, .habits {
+.scores, .habits, .day-container {
     width: 300px;
 }
 
@@ -54,9 +54,14 @@ body{
     gap: 6px; /* space between icon and text */
 }
 
-.habits_row {
+.habits_row, .day-row {
   display: flex;
   gap: 2rem;
+}
+
+.day-row {
+    display: flex;
+    gap: 0.75rem;
 }
 
 #highscore{
@@ -84,4 +89,20 @@ button {
     padding: 0.5rem 0.75rem;
     border-radius: 4px;
     background-color: #4f0b52;
+}
+
+.day-box.off, .day-box.on {
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-size: small;
+}
+
+.day-box.on {
+    background-color: #4f0b52;
+    color: white;
+}
+
+.day-box.off {
+    background-color: #4f0b52;
+    color: black;
 }

@@ -2,13 +2,13 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify, abort 
 import threading
 
-from modules.get_config import get_alarm_time, get_clockout_time
+from modules.get_config import get_alarm_time, get_clockout_time, get_alarm_days
 from modules.alarm_thread import watch_alarm
 from modules.stopping_alarm import stop_alarm_calc
 from modules.handle_clockout import clockout_action
 from modules.handle_habits import habit_done
 from modules.get_update import get_highscore, get_score_and_streak, get_habits
-from modules.update_config import save_alarm_time, save_clockout_time
+from modules.update_config import save_alarm_time, save_clockout_time, save_alarm_days
 from modules.get_from_db import get_all_history
 from modules.update_db import delete_row, update_today
 
@@ -26,7 +26,8 @@ app = Flask(__name__)
 def home():
     alarm_time = get_alarm_time()         # get alarm and clockout times from config to be rendered in frontend
     clockout_time = get_clockout_time()
-    return render_template('index.html', alarm_time=alarm_time, clockout_time=clockout_time) 
+    active_days = get_alarm_days()
+    return render_template('index.html', alarm_time=alarm_time, clockout_time=clockout_time, days=active_days) 
 
 # Called by AJAX (JS) to update streak and highscore without refreshing the page
 @app.route('/update_highscore')
@@ -126,6 +127,18 @@ def update_day():
 
         update_today(date=updateDate, **data)
     return redirect(url_for('history'))
+
+@app.route("/toggle_day", methods=["POST"])
+def toggle_day():
+    day = request.json.get("day")
+    config = get_alarm_days()
+
+    current_value = config[day]
+    config[day] = not current_value
+
+    save_alarm_days(config)
+
+    return jsonify({"success": True, "new_value": config[day]})
 
 # Start the alarm watcher thread and run the Flask app
 if __name__ == '__main__':

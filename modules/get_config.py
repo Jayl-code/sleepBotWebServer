@@ -70,3 +70,12 @@ def alarm_today(file_path=config_file):
     active_today = data["alarm_days"][todays_day]
 
     return active_today
+
+def get_alarm_days(file_path=config_file):
+    with open(file_path, 'r') as file:
+        content = file.read().strip()
+        data = json.loads(content)
+
+    alarm_data = data.get('alarm_days')
+    
+    return alarm_data

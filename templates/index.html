@@ -64,6 +64,17 @@
     </div>
   </div>
 
+<div class="day-container">
+  <div class="day-row">
+    {% for day, enabled in days.items() %}
+        <div class="day-box {{ 'on' if enabled else 'off' }}"
+             onclick="toggleDay('{{ day }}', this)">
+            {{ day[0].upper() }}
+        </div>
+    {% endfor %}
+  </div>
+</div>
+
 <script src="{{url_for('static', filename='script.js')}}"></script>
 <script src="https://kit.fontawesome.com/6a06188459.js" crossorigin="anonymous"></script>
 </body>

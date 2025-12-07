@@ -84,3 +84,25 @@ document.addEventListener('visibilitychange', () => {
 });
 
 if (document.visibilityState === 'visible') startPolling();
+
+// ----------Alarm days---------------------------------------------------
+
+function toggleDay(day, element) {
+    fetch("/toggle_day", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ day: day })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            if (data.new_value) {
+                element.classList.remove("off");
+                element.classList.add("on");
+            } else {
+                element.classList.remove("on");
+                element.classList.add("off");
+            }
+        }
+    });
+}

@@ -25,3 +25,13 @@ def save_clockout_time(new_clockout_time, file_path=config_file):
     with open(file_path, 'w') as file:
         json.dump(data, file, indent=4)
     return
+
+def save_alarm_days(update, file_path=config_file):
+    with open(file_path, 'r') as file:
+        data = json.load(file)
+
+    data['alarm_days'] = update
+
+    with open(file_path, 'w') as file:
+        json.dump(data, file, indent=4)
+    return
