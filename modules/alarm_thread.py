@@ -3,7 +3,7 @@ import time
 from datetime import datetime
 
 from modules.get_config import get_alarm_time, alarm_today
-from modules.handle_sounds import play_sound
+from modules.handle_sounds import loop_sound_toggle
 
 
 # Watches for alarm time and triggers alarm sound when time matches 
@@ -18,7 +18,7 @@ def watch_alarm():
 
                 # Avoid triggering multiple times per minute
                 if current_str == alarm_str and last_triggered_minute != current_str:
-                    play_sound()
+                    loop_sound_toggle(True)
                     last_triggered_minute = current_str
 
             except Exception as e:

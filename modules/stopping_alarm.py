@@ -3,7 +3,7 @@ from datetime import date
 
 from modules.get_config import get_alarm_time
 from modules.get_from_db import get_dates_history
-from modules.handle_sounds import stop_alarm_playing
+from modules.handle_sounds import loop_sound_toggle
 from modules.update_db import insert_history, update_today
 
 # File paths
@@ -11,7 +11,7 @@ config_file = 'config.json'
 db_file = 'database.db'
 
 def stop_alarm_calc(time_str, seconds_str):
-    stop_alarm_playing()
+    loop_sound_toggle(False)
 
     alarm_time = get_alarm_time()
     dateToday = str(date.today())
