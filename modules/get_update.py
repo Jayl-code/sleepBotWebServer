@@ -18,7 +18,7 @@ def get_score_and_streak():
     today = str(date.today())
     today_history = get_dates_history(today, ["score", "streak"])
     if not today_history:
-        last_streak = get_dates_history(get_last_required_day(), "streak")
+        last_streak = get_dates_history(get_last_required_day(), ["streak"])
         if not last_streak:
             return 0, 0
         else:
@@ -31,6 +31,13 @@ def get_habits():
     today = str(date.today())
     last_habits = get_dates_history(get_last_required_day(), habits)
     todays_habits = get_dates_history(today, habits)
+
+    # If they returned None, replace with zero-filled lists
+    if last_habits is None:
+        last_habits = [0] * len(habits)
+
+    if todays_habits is None:
+        todays_habits = [0] * len(habits)
 
     habit_values = {}
     habit_is_today = {}
