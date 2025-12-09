@@ -34,6 +34,8 @@ HABIT_URL = "http://(PUT YOUR SERVER IP AND PORT HERE)/habit/"    # Put the IP a
 
 #--------------------User Change NEEDED end--------------------
 
+wlan = network.WLAN(network.STA_IF)
+
 # Error light flash
 def error_flash():
     for i in range(10):
@@ -83,13 +85,16 @@ def wifi_connect(max_retries=3, backoff_time=5):
 wifi_connect()
 
 # Sync time via NTP
-def sync_time():
-    try:
-        ntptime.settime()  # sets RTC to UTC
-        print("Time synced via NTP.")
-    except Exception as e:
-        error_flash()
-        print("NTP sync failed:", e)
+def sync_time(max_retries=3):
+    while max_retries > 0:
+        try:
+            ntptime.settime()  # sets RTC to UTC
+            print("Time synced via NTP.")
+            return
+        except Exception as e:
+            error_flash()
+            print("NTP sync failed:", e)
+            max_retries -= 1
 
 sync_time()
 
