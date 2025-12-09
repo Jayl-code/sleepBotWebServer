@@ -1,5 +1,5 @@
 # Imports
-from flask import Flask, render_template, redirect, url_for, request, jsonify, abort 
+from flask import Flask, render_template, redirect, url_for, request, jsonify, abort
 import threading
 
 from modules.get_config import get_alarm_time, get_clockout_time, get_alarm_days
@@ -21,126 +21,123 @@ setup_config()
 
 app = Flask(__name__)
 
-# Home route, renders the main page
+
+# -------------------------
+#         HOME
+# -------------------------
 @app.route('/')
 def home():
-    alarm_time = get_alarm_time()         # get alarm and clockout times from config to be rendered in frontend
-    clockout_time = get_clockout_time()
-    active_days = get_alarm_days()
-    return render_template('index.html', alarm_time=alarm_time, clockout_time=clockout_time, days=active_days) 
+    return render_template(
+        'index.html',
+        alarm_time=get_alarm_time(),
+        clockout_time=get_clockout_time(),
+        days=get_alarm_days()
+    )
 
-# Called by AJAX (JS) to update streak and highscore without refreshing the page
+
+# -------------------------
+#     AJAX UPDATE ROUTES
+# -------------------------
 @app.route('/update_highscore')
 def update_highscore():
-    highscore = get_highscore() # get current highscore to be sent to frontend
-    return jsonify({
-        "highscore": highscore
-    })
+    return jsonify({"highscore": get_highscore()})
 
 @app.route('/update_score_and_streak')
 def update_score_and_streak():
     score, streak = get_score_and_streak()
-    return jsonify({
-        "score": score,
-        "streak": streak
-    })
+    return jsonify({"score": score, "streak": streak})
 
 @app.route('/update_habits')
 def update_habits():
-    habit_values, habit_is_today = get_habits()
-    return jsonify({
-        "values": habit_values,
-        "is_today": habit_is_today
-    })
+    values, is_today = get_habits()
+    return jsonify({"values": values, "is_today": is_today})
 
-# Route to set a new alarm time, called by alarm edit form
+
+# -------------------------
+#      CONFIG ROUTES
+# -------------------------
 @app.route('/set_alarm', methods=['POST'])
 def set_alarm():
-    if request.method == 'POST':
-        new_alarm_time = request.form['alarm_time']
-        save_alarm_time(new_alarm_time)
-    
+    save_alarm_time(request.form['alarm_time'])
     return redirect(url_for('home'))
 
-# Route to set a new clockout time, called by clockout edit form
 @app.route('/set_clockout', methods=['POST'])
 def set_clockout():
-    if request.method == 'POST':
-        new_clockout_time = request.form['clockout_time']
-        save_clockout_time(new_clockout_time)
-
+    save_clockout_time(request.form['clockout_time'])
     return redirect(url_for('home'))
 
-# Route called manually to clock out
-@app.route('/clockout', methods=['GET'])
+
+# -------------------------
+#     CLOCKOUT + ALARM
+# -------------------------
+@app.route('/clockout')
 def clockout():
     clockout_action()
     return redirect(url_for('home'))
 
-# Route called by the controller to stop the alarm
 @app.route('/stop_alarm', methods=['POST'])
 def stop_alarm():
-    if request.method == 'POST':
-        data = request.get_json() # get JSON data from request sent by controller
-        if not data:
-            return jsonify({"error": "No JSON received"}), 400
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No JSON received"}), 400
 
-        # Extract fields
-        time_str = data.get("time")
-        seconds_str = data.get("seconds")
+    stop_alarm_calc(data.get("time"), data.get("seconds"))
+    return "", 202  # Accepted
 
-        print(f"Received time: {time_str}, seconds: {seconds_str}")
-        stop_alarm_calc(time_str, seconds_str) # process the stop alarm request
-    
-    else:
-        pass
-    return "", 202 # ACCEPTED
 
-# Route called by the controller to mark a habit as done
-@app.route('/habit/<int:habit_id>', methods=['GET'])
+# -------------------------
+#      HABITS
+# -------------------------
+@app.route('/habit/<int:habit_id>')
 def habit(habit_id):
-    if habit_id not in {1, 2, 3, 4}:
+    if habit_id not in (1, 2, 3, 4):
         abort(404)
-    habit_done(habit_id) # process the habit done request
-    return "", 202 # ACCEPTED
 
+    habit_done(habit_id)
+    return "", 202
+
+
+# -------------------------
+#      HISTORY PAGE
+# -------------------------
 @app.route('/history')
 def history():
-    rows = get_all_history()
-    return render_template('history.html', rows=rows)
+    return render_template('history.html', rows=get_all_history())
 
 @app.route('/delete_id', methods=['POST'])
 def delete_id():
-    if request.method == 'POST':
-        id = request.form['id']
-        delete_row(id)
+    delete_row(request.form['id'])
     return redirect(url_for('history'))
 
 @app.route('/update_day', methods=['POST'])
 def update_day():
-    if request.method == 'POST':
-        updateDate = request.form['date']
-        column = request.form['column']
-        updated = request.form['updated']
-
-        data = {column: updated}
-
-        update_today(date=updateDate, **data)
+    update_today(
+        date=request.form['date'],
+        **{request.form['column']: request.form['updated']}
+    )
     return redirect(url_for('history'))
 
-@app.route("/toggle_day", methods=["POST"])
+
+# -------------------------
+#      TOGGLE DAY
+# -------------------------
+@app.route('/toggle_day', methods=['POST'])
 def toggle_day():
     day = request.json.get("day")
-    config = get_alarm_days()
+    days = get_alarm_days()
 
-    current_value = config[day]
-    config[day] = not current_value
+    if day not in days:
+        return jsonify({"error": "Invalid day"}), 400
 
-    save_alarm_days(config)
+    days[day] = not days[day]
+    save_alarm_days(days)
 
-    return jsonify({"success": True, "new_value": config[day]})
+    return jsonify({"success": True, "new_value": days[day]})
 
-# Start the alarm watcher thread and run the Flask app
+
+# -------------------------
+#     START APP AND BACKGROUND THREAD
+# -------------------------
 if __name__ == '__main__':
     threading.Thread(target=watch_alarm, daemon=True).start()
     app.run(host='0.0.0.0', port=5001, debug=True, use_reloader=False)

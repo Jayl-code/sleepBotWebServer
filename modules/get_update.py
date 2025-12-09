@@ -18,7 +18,7 @@ def get_highscore():
 def get_score_and_streak():
     today = str(date.today())
     today_history = get_dates_history(today, ["score", "streak"])
-    if not today_history:
+    if not today_history or len(today_history) < 2:
         last_streak = get_dates_history(get_last_required_day(), ["streak"])
         if not last_streak:
             return 0, 0
