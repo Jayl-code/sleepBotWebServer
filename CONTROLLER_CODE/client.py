@@ -45,35 +45,53 @@ def error_flash():
         utime.sleep_ms(75)
 
 # Connect to wifi
-wlan = network.WLAN(network.STA_IF)
-wlan.active(True)
-
-print("Connecting to Wi-Fi...")
-wlan.connect(SSID, PASSWORD)
-
-# Wait for connection
-max_wait = 20
-while max_wait > 0:
+def wifi_connect(max_retries=3, backoff_time=5):
+    wlan.active(True)
     if wlan.isconnected():
-        break
-    print("Waiting for connection...")
-    max_wait -= 1
-    utime.sleep(1)
+        return True
 
-if wlan.isconnected():
-    print("Connected!")
-    print("IP address:", wlan.ifconfig()[0])
-else:
-    print("Failed to connect.")
-    error_flash()
+    print("Connecting to Wi-Fi...")
+    wlan.connect(SSID, PASSWORD)
+
+    retries = 0
+    max_wait = 20
+
+    while max_wait > 0:
+        if wlan.isconnected():
+            print("Connected!")
+            print("IP address:", wlan.ifconfig()[0])
+            return True
+
+        utime.sleep(1)
+        max_wait -= 1
+
+        # If time runs out and connection not successful, retry logic kicks in
+        if max_wait == 0:
+            retries += 1
+            if retries >= max_retries:
+                print(f"Failed to connect after {max_retries} retries.")
+                error_flash()
+                return False
+            else:
+                print(f"Retrying WiFi connection ({retries}/{max_retries}) after {backoff_time} seconds...")
+                utime.sleep(backoff_time)
+                max_wait = 20  # reset wait timer
+                wlan.disconnect()
+                wlan.connect(SSID, PASSWORD)
+
+
+wifi_connect()
 
 # Sync time via NTP
-try:
-    ntptime.settime()  # sets RTC to UTC
-    print("Time synced via NTP.")
-except Exception as e:
-    error_flash()
-    print("NTP sync failed:", e)
+def sync_time():
+    try:
+        ntptime.settime()  # sets RTC to UTC
+        print("Time synced via NTP.")
+    except Exception as e:
+        error_flash()
+        print("NTP sync failed:", e)
+
+sync_time()
 
 # Timezone offset
 TIMEZONE_OFFSET = 3600 * hours_from_utc  # 1 hour = 3600
@@ -104,10 +122,13 @@ def send_time():
             headers={"Content-Type": "application/json"}
         )
         print("Response:", response.status_code)
-        response.close()
+
     except Exception as e:
         error_flash()
         print("Error sending data:", e)
+
+    finally:
+        response.close()
         
 # Function to handle habit button press
 def handle_habit(index):
@@ -115,16 +136,44 @@ def handle_habit(index):
     try:
         response = urequests.get(correct_habit_url, timeout=5)
         print("Response:", response.status_code)
-        response.close()
+
     except Exception as e:
         error_flash()
         print("Error sending data:", e)
+    
+    finally:
+        response.close()
         
 habits_active = False
 habits_left = None
 
+RECONNECT_INTERVAL = 30  # seconds between reconnect attempts
+last_check = utime.time()
+was_connected = wlan.isconnected()
+
+for h in habits:
+    h["led"].value(1)      
+    utime.sleep_ms(75)
+for h in habits:
+    h["led"].value(0)
+    utime.sleep_ms(75)
+
 # Main loop
 while True:
+    current_time = utime.time()
+
+    if current_time - last_check > RECONNECT_INTERVAL:
+        connected_now = wlan.isconnected()
+        if not connected_now and was_connected:
+            print("WiFi disconnected, attempting to reconnect...")
+            if wifi_connect():
+                utime.sleep_ms(25)
+                sync_time()
+            else:
+                error_flash()
+        was_connected = connected_now
+        last_check = utime.time()
+
     # Submit: turn all LEDs on    
     if not habits_active:
         if not submit_btn.value():
@@ -153,4 +202,6 @@ while True:
                 h["led"].value(0)
                 habits_active = False
                 utime.sleep_ms(debounce_delay)
+
+    utime.sleep_ms(50)
                 
