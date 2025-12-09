@@ -1,48 +1,62 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="/static/images/favicon.png">
     <title>Sleep Bot DB History</title>
 </head>
+
 <body>
 
 <h1>All History</h1>
 
-<table border="1" cellpadding="8">
+<table border="1" cellpadding="8" cellspacing="0">
     {% if rows and rows|length > 0 %}
-    <tr>
-        {% for col in rows[0].keys() %}
-            <th>{{ col }}</th>
-        {% endfor %}
-    </tr>
+        <tr>
+            {% for col in rows[0].keys() %}
+                <th>{{ col }}</th>
+            {% endfor %}
+        </tr>
 
-    {% for row in rows %}
-    <tr>
-        {% for col in row.keys() %}
-            <td>{{ row[col] }}</td>
+        {% for row in rows %}
+            <tr>
+                {% for col in row.keys() %}
+                    <td>{{ row[col] }}</td>
+                {% endfor %}
+            </tr>
         {% endfor %}
-    </tr>
-    {% endfor %}
-{% else %}
-    <tr><td colspan="100%">No data available</td></tr>
-{% endif %}
-        
+
+    {% else %}
+        <tr><td colspan="100%">No data available</td></tr>
+    {% endif %}
 </table>
 
-Delete row
+<br><br>
+
+<!-- Delete Row -->
+<h3>Delete Row</h3>
 <form action="/delete_id" method="POST">
     <input type="text" name="id" placeholder="ID to delete">
     <button type="submit">Submit</button>
 </form>
 
-Update row
+<br>
+
+<!-- Update Row -->
+<h3>Update Row</h3>
 <form action="/update_day" method="POST">
-    <input type="text" name="date" placeholder="YYY-MM-DD">
-    <input type="text" name="column" placeholder="(column name)">
-    <input type="text" name="updated" placeholder="(new value)">
+    <input type="text" name="date" placeholder="YYYY-MM-DD">
+    <input type="text" name="column" placeholder="Column name">
+    <input type="text" name="updated" placeholder="New value">
     <button type="submit">Submit</button>
+</form>
+
+<br>
+
+<!-- Back -->
+<form action="/" method="GET">
+    <button type="submit">Return</button>
 </form>
 
 </body>

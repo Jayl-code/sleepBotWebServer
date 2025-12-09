@@ -1,7 +1,8 @@
-body{
+/* --- Global --- */
+body {
     font-family: "Roboto", sans-serif;
-    background-color: #000000;
-    color: #ffffff;
+    background-color: #000;
+    color: #fff;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -11,35 +12,46 @@ body{
     padding: 20px;
 }
 
+/* --- Shared Styles for box sections --- */
+.times, 
+.day_container,
+.streak,
+.scores,
+.habits,
+.history_button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(19, 159, 156, 0.7);
+    margin-bottom: 1rem;
+}
+
+/* Times spacing */
 .times {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    margin-bottom: 2rem;
+    gap: 0.5rem;
+}
+
+/* --- Individual background colors --- */
+.times,
+.day_container,
+.history_button {
     background-color: #4f0b52;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(19, 159, 156, 0.7);
-    width: 300px;
-    margin-bottom: 1rem;
-    text-align: center;
-    align-items: center;
-    gap: 10px;
 }
 
-.streak, .scores, .habits, .day-container {
-    display: flex;
-    flex-direction: column;
+.streak,
+.scores,
+.habits {
     background-color: #751777;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(19, 159, 156, 0.7);
-    margin-bottom: 1rem;
-    text-align: center;
-    align-items: center;
 }
 
-.scores, .habits, .day-container {
+/* --- Widths --- */
+.times,
+.day_container,
+.scores,
+.habits {
     width: 300px;
 }
 
@@ -47,62 +59,72 @@ body{
     width: 150px;
 }
 
+.history_button {
+    width: 75px;
+}
+
+/* --- Layout rows --- */
 .streak_row {
     display: flex;
-    flex-direction: row;
     align-items: center;
-    gap: 6px; /* space between icon and text */
+    gap: 6px;
 }
 
-.habits_row, .day-row {
-  display: flex;
-  gap: 2rem;
-}
-
-.day-row {
+.habits_row,
+.day_row {
     display: flex;
+}
+
+.habits_row {
+    gap: 2rem;
+}
+
+.day_row {
     gap: 0.75rem;
 }
 
-#highscore{
+/* --- Font --- */
+#highscore {
     font-weight: bolder;
     font-size: xx-large;
 }
 
-#current_score{
+#current_score {
     font-weight: bold;
     font-size: large;
 }
 
+/* --- Buttons --- */
 button {
     background-color: #3b0a3e;
-    color: #ffffff;
+    color: #fff;
     border: none;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     cursor: pointer;
     font-size: 1rem;
-    
 }
 
+/* --- Habit Boxes --- */
 #habit1, #habit2, #habit3, #habit4 {
     padding: 0.5rem 0.75rem;
     border-radius: 4px;
     background-color: #4f0b52;
 }
 
-.day-box.off, .day-box.on {
+/* --- Day Box States --- */
+.day_box {
     padding: 0.5rem 0.75rem;
     border-radius: 4px;
     font-size: small;
 }
 
-.day-box.on {
-    background-color: #4f0b52;
-    color: white;
+.day_box.on {
+    background-color: #751777;
+    color: #fff;
 }
 
-.day-box.off {
-    background-color: #4f0b52;
-    color: black;
+.day_box.off {
+    background-color: #3b0a3e;
+    color: #000;
 }

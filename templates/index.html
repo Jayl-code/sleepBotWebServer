@@ -4,27 +4,34 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sleep Bot</title>
+
   <link rel="icon" type="image/png" href="/static/images/favicon.png">
   <link rel="apple-touch-icon" href="/static/images/apple-touch-icon.png">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100..900&display=swap" rel="stylesheet">
+
+  <script src="https://kit.fontawesome.com/6a06188459.js" crossorigin="anonymous"></script>
 </head>
+
 <body>
 
+  <!-- Streak -->
   <div class="streak">
     <div class="streak_row">
-      <div id="streak" class="value">Streak: </div>
+      <div id="streak" class="value">Streak:</div>
       <i class="fa-solid fa-fire"></i>
     </div>
   </div>
 
+  <!-- Scores -->
   <div class="scores">
-    <div id="highscore" class="value">High Score: </div>
-    <div id="current_score" class="value">Current Score: </div>
+    <div id="highscore" class="value">High Score:</div>
+    <div id="current_score" class="value">Current Score:</div>
   </div>
 
-  <div class="habits"> 
-    <div class="habits_row">  
+  <!-- Habits -->
+  <div class="habits">
+    <div class="habits_row">
       <div id="habit1" class="value">0</div>
       <div id="habit2" class="value">0</div>
       <div id="habit3" class="value">0</div>
@@ -32,11 +39,15 @@
     </div>
   </div>
 
+  <!-- Times -->
   <div class="times">
+
+    <!-- Alarm -->
     <div class="alarm_time">
       <div id="alarm_time" class="value">
-        <i class="fa-solid fa-alarm-clock"></i>Alarm time: {{ alarm_time }} 
-        <button id="alarm_settings_btn" type="button" aria-label="Edit Alarm Time">
+        <i class="fa-solid fa-alarm-clock"></i> 
+        Alarm time: {{ alarm_time }}
+        <button id="alarm_settings_btn" type="button">
           <i class="fa-solid fa-gear"></i>
         </button>
       </div>
@@ -48,34 +59,46 @@
       </form>
     </div>
 
+    <!-- Clockout -->
     <div class="clockout_time">
       <div id="clockout_time" class="value">
-        <i class="fa-solid fa-clock"></i>Clockout time: {{clockout_time}}
-        <button id="clockout_settings_btn" type="button" aria-label="Edit Clockout Time">
+        <i class="fa-solid fa-clock"></i>
+        Clockout time: {{ clockout_time }}
+        <button id="clockout_settings_btn" type="button">
           <i class="fa-solid fa-gear"></i>
         </button>
       </div>
 
-      <form id="clockout_form" method="post" action="/set_clockout" style="display: none; margin-top: 10px;">
+      <form id="clockout_form" method="post" action="/set_clockout" style="display:none; margin-top: 10px;">
         <label for="clockout_time_input">New clockout time:</label>
         <input type="time" id="clockout_time_input" name="clockout_time" required>
         <button type="submit"><i class="fa-solid fa-circle-check"></i></button>
       </form>
     </div>
+
   </div>
 
-<div class="day-container">
-  <div class="day-row">
-    {% for day, enabled in days.items() %}
-        <div class="day-box {{ 'on' if enabled else 'off' }}"
+  <!-- Days -->
+  <div class="day_container">
+    <div class="day_row">
+      {% for day, enabled in days.items() %}
+        <div class="day_box {{ 'on' if enabled else 'off' }}"
              onclick="toggleDay('{{ day }}', this)">
-            {{ day[0].upper() }}
+          {{ day[0].upper() }}
         </div>
-    {% endfor %}
+      {% endfor %}
+    </div>
   </div>
-</div>
 
-<script src="{{url_for('static', filename='script.js')}}"></script>
-<script src="https://kit.fontawesome.com/6a06188459.js" crossorigin="anonymous"></script>
+  <!-- History -->
+  <div class="history_button">
+    <form id="history_form" method="get" action="/history">
+      <button type="submit">
+        <i class="fa fa-history"></i>
+      </button>
+    </form>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
