@@ -87,7 +87,6 @@ def get_multiplier(history):
         multiplier_amount = int(current_streak) / 10
         multiplier = 1 + multiplier_amount
     else:
-        multiplier = 1
-    print(multiplier)    
+        multiplier = 1  
 
     return multiplier

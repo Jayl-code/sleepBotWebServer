@@ -5,7 +5,6 @@ from modules.get_config import get_last_required_day
 from modules.update_db import update_today
 
 def habit_done(habit_id):
-    print(f"Habit {habit_id} marked as done.")
 
     dateToday = str(date.today())
     todays_history = get_dates_history(dateToday, ["habit1", "habit2", "habit3", "habit4", "score"])
@@ -19,7 +18,7 @@ def habit_done(habit_id):
     if not last_history:
         last_history = [0, 0, 0, 0]
 
-    index = habit_id - 1  # convert habit_id 1→0, 2→1, etc.
+    index = habit_id - 1  # convert habit_id 1 to 0, 2 to 1, etc.
     habit_name = f"habit{habit_id}"
 
     # Check if today's habit is still incomplete
