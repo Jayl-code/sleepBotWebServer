@@ -45,6 +45,17 @@ async function updateData() {
       document.getElementById("streak").textContent = "Streak: " + scoreStreakData.streak;
     }
 
+    // Turn highscore text darker if score != highscore and both are not 0
+    const highscore = highscoreData.highscore;
+    const score = scoreStreakData.score;
+
+    if (score !== highscore && highscore !== 0) {
+      document.getElementById("highscore").style.color = "#3b0a3e";
+    } else {
+      // Optional: reset color if no longer equal
+      document.getElementById("highscore").style.color = "white";
+    }
+
     // Update habits
     const habits = habitsData.values;
     const isToday = habitsData.is_today;
