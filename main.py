@@ -15,11 +15,21 @@ from modules.update_db import delete_row, update_today
 from db_setup import setup_database
 from config_setup import setup_config
 
+thread_started = False
+
+def start_background_thread():
+    global thread_started
+    if not thread_started:
+        thread = threading.Thread(target=watch_alarm, daemon=True)
+        thread.start()
+        thread_started = True
+
 # Create config, DB and table if they don't exist
 setup_database()
 setup_config()
 
 app = Flask(__name__)
+start_background_thread()
 
 
 # -------------------------
@@ -136,8 +146,7 @@ def toggle_day():
 
 
 # -------------------------
-#     START APP AND BACKGROUND THREAD
+#     START APP WHEN TESTING 
 # -------------------------
 if __name__ == '__main__':
-    threading.Thread(target=watch_alarm, daemon=True).start()
     app.run(host='0.0.0.0', port=5001, debug=True, use_reloader=False)
