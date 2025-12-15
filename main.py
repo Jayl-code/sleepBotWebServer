@@ -15,6 +15,10 @@ from modules.update_db import delete_row, update_today
 from db_setup import setup_database
 from config_setup import setup_config
 
+# Create config, DB and table if they don't exist
+setup_database()
+setup_config()
+
 thread_started = False
 
 def start_background_thread():
@@ -23,10 +27,6 @@ def start_background_thread():
         thread = threading.Thread(target=watch_alarm, daemon=True)
         thread.start()
         thread_started = True
-
-# Create config, DB and table if they don't exist
-setup_database()
-setup_config()
 
 app = Flask(__name__)
 start_background_thread()
