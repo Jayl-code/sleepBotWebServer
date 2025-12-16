@@ -1,6 +1,6 @@
 # Sleep Bot
 
-Sleep Bot, gamify sleep.
+Sleep Bot — gamify your sleep.
 
 ## About
 
@@ -9,9 +9,7 @@ Sleep Bot is a system that tracks sleep-related habits and rewards consistency t
 ## Features
 
 - Habit tracking gives bonus points or higher streaks
-
 - Streaks of consecutive completed days increase score multipliers
-
 - Clock-out feature ensures you are off your phone at a set time
 
 ## Installation
@@ -30,7 +28,7 @@ gunicorn -w 1 -b 0.0.0.0:8000 wsgi:app
 
 Requirements:
 
-- Python 3.13 or newer
+- Python 3.10 or newer
 
 - Local network access for connected devices
 
@@ -71,9 +69,9 @@ Requirements:
   - Inside the `If Battery State` block, add **Get Contents of URL**
 
   - Set the URL to:
-
-        http://<SERVER_IP>:8000/clockout
-
+    ``` arduino
+    http://<SERVER_IP>:8000/clockout
+    ```
 
 This automation triggers the clock-out action when the phone is charging and the NFC tag is scanned.
 
