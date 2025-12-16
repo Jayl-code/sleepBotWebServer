@@ -28,7 +28,7 @@ def loop_sound_toggle(run: bool, filename="static/sounds/alarm_sound.wav", max_t
         start_time = time.time()
 
         while _looping and (time.time() - start_time < max_time):
-            _current_process = subprocess.Popen(["aplay", filename]) # aplay for use on Pi, afplay when testing on mac
+            _current_process = subprocess.Popen(["/usr/bin/aplay", filename]) # aplay for use on Pi, afplay when testing on mac
             while _looping and _current_process.poll() is None:
                 time.sleep(0.05)
 
