@@ -82,8 +82,7 @@ def set_clockout():
 # -------------------------
 @app.route('/clockout')
 def clockout():
-    clockout_action()
-    return redirect(url_for('home'))
+    return clockout_action()
 
 @app.route('/stop_alarm', methods=['POST'])
 def stop_alarm():

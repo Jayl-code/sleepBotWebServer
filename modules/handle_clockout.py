@@ -37,7 +37,7 @@ def clockout_action():
 
     if alreadyClockedOut: 
         print("Clockout already recorded for today.")
-        return
+        return "0"
     
     if not get_last_required_day():
         lastHistory = None
@@ -63,11 +63,13 @@ def clockout_action():
                 clockout=1,
                 streak=new_streak
             )
+        
+        return "1"
 
     else:
         print("Clockout action not in allowed time range.")
 
-    return
+        return "0"
 
 # Checks if current time is within the allowed clockout range
 def is_clockout_in_range(start, end, current):
