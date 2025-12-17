@@ -68,6 +68,7 @@ def wifi_connect(max_retries=3, backoff_time=5):
 
         utime.sleep(1)
         max_wait -= 1
+        wdt.feed()
 
         # If time runs out and connection not successful, retry logic kicks in
         if max_wait == 0:
