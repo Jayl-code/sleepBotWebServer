@@ -132,7 +132,12 @@ def update_day():
 # -------------------------
 @app.route('/toggle_day', methods=['POST'])
 def toggle_day():
-    day = request.json.get("day")
+    data = request.get_json()
+
+    if not data or "day" not in data:
+        return jsonify({"error": "Missing day"}), 400
+
+    day = data["day"]
     days = get_alarm_days()
 
     if day not in days:
