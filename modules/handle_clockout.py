@@ -12,7 +12,7 @@ db_file = 'database.db'
 
 # Processes clockout action and updates database accordingly
 def clockout_action():
-    allowed_time_before_amount = 4  # Hours
+    allowed_time_before_amount = 3  # Hours
 
     # Get times
     alarm_str = get_alarm_time()
