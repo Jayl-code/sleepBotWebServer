@@ -152,5 +152,5 @@ def toggle_day():
 # -------------------------
 #     START APP WHEN TESTING 
 # -------------------------
-#if __name__ == '__main__':
-#    app.run(host='0.0.0.0', port=5001, debug=True, use_reloader=False)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5001, debug=True, use_reloader=False)

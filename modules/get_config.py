@@ -79,3 +79,12 @@ def get_alarm_days(file_path=config_file):
     alarm_data = data.get('alarm_days')
     
     return alarm_data
+
+def get_is_light_control_enabled(file_path=config_file):
+    with open(file_path, 'r') as file:
+        content = file.read().strip()
+        data = json.loads(content)
+
+    light_control = data.get('light_control')
+    
+    return light_control

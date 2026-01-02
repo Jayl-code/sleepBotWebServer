@@ -90,14 +90,22 @@
     </div>
   </div>
 
-  <!-- History -->
-  <div class="history_button">
-    <form id="history_form" method="get" action="/history">
-      <button type="submit">
-        <i class="fa fa-history"></i>
-      </button>
-    </form>
-  </div>
+  <!-- History and Light Control -->
+   <div class="button_row">
+
+    <div class="history_button">
+      <form id="history_form" method="get" action="/history">
+        <button type="submit">
+          <i class="fa fa-history"></i>
+        </button>
+      </form>
+    </div>
+
+    <div id="light_status_box" class="box enabled">
+      <button onclick="toggleLightStatus()"><i class="fa-solid fa-lightbulb"></i></button>
+    </div>
+
+   </div>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
