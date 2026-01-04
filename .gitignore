@@ -6,4 +6,4 @@ test.py
 config.json
 /modules/__pycache__
 .DS_Store
-light_controller.py
+/light_control
