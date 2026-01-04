@@ -35,3 +35,13 @@ def save_alarm_days(update, file_path=config_file):
     with open(file_path, 'w') as file:
         json.dump(data, file, indent=4)
     return
+
+def toggle_light_control(file_path=config_file, key='light_control'):
+    with open(file_path, "r") as f:
+        data = json.load(f)
+
+    data[key] = not data.get(key, False)
+
+    with open(file_path, "w") as f:
+        json.dump(data, f, indent=4)
+    return

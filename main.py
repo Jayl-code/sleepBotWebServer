@@ -2,13 +2,13 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify, abort
 import threading
 
-from modules.get_config import get_alarm_time, get_clockout_time, get_alarm_days
+from modules.get_config import get_alarm_time, get_clockout_time, get_alarm_days, get_is_light_control_enabled
 from modules.alarm_thread import watch_alarm
 from modules.stopping_alarm import stop_alarm_calc
 from modules.handle_clockout import clockout_action
 from modules.handle_habits import habit_done
 from modules.get_update import get_highscore, get_score_and_streak, get_habits
-from modules.update_config import save_alarm_time, save_clockout_time, save_alarm_days
+from modules.update_config import save_alarm_time, save_clockout_time, save_alarm_days, toggle_light_control
 from modules.get_from_db import get_all_history
 from modules.update_db import delete_row, update_today
 
@@ -41,7 +41,8 @@ def home():
         'index.html',
         alarm_time=get_alarm_time(),
         clockout_time=get_clockout_time(),
-        days=get_alarm_days()
+        days=get_alarm_days(),
+        light_mode=get_is_light_control_enabled()
     )
 
 
@@ -147,6 +148,14 @@ def toggle_day():
     save_alarm_days(days)
 
     return jsonify({"success": True, "new_value": days[day]})
+
+# -------------------------
+#       TOGGLE LIGHT
+# -------------------------
+@app.route('/toggle_light_mode', methods=['GET'])
+def toggle_light_mode():
+    toggle_light_control()
+    return redirect(url_for('home'))
 
 
 # -------------------------
