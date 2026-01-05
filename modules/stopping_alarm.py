@@ -1,14 +1,39 @@
 # Imports
-from datetime import date
+from datetime import datetime, date, timedelta
 
 from modules.get_config import get_alarm_time
 from modules.get_from_db import get_dates_history
 from modules.handle_sounds import loop_sound_toggle
 from modules.update_db import insert_history, update_today
 
+from light_control.sunrise_control import sunrise_cancel_event
+
 # File paths
 config_file = 'config.json'
 db_file = 'database.db'
+
+def build_time_datetime(time_str, alarm_time):
+    """
+    Returns a datetime for time_str that correctly aligns
+    with the alarm datetime, even across midnight.
+    """
+    today = date.today()
+
+    alarm_dt = datetime.strptime(
+        f"{today} {alarm_time}",
+        "%Y-%m-%d %H:%M"
+    )
+
+    time_dt = datetime.strptime(
+        f"{today} {time_str}",
+        "%Y-%m-%d %H:%M"
+    )
+
+    # If time is later than alarm, it must be from the previous day
+    if time_dt > alarm_dt:
+        time_dt -= timedelta(days=1)
+
+    return time_dt, alarm_dt
 
 def stop_alarm_calc(time_str, seconds_str):
     loop_sound_toggle(False)
@@ -24,9 +49,18 @@ def stop_alarm_calc(time_str, seconds_str):
     if historyToday and todays_history[0] == 1:
         print("Alarm already stopped for today.")
         return
+    
+    time_dt, alarm_dt = build_time_datetime(time_str, alarm_time)
+    window_start = alarm_dt - timedelta(hours=4)
 
-    if time_str == alarm_time:
+    if window_start <= time_dt <= alarm_dt:
         print(f"Alarm stopped after {seconds} seconds.")
+
+        # If early, zero seconds
+        effective_seconds = 0 if time_dt < alarm_dt else seconds
+
+        if effective_seconds == 0:
+            sunrise_cancel_event.set()
 
         multiplier = get_multiplier(todays_history) if historyToday else 1
 
