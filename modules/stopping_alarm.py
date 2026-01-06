@@ -65,7 +65,7 @@ def stop_alarm_calc(time_str, seconds_str):
         multiplier = get_multiplier(todays_history) if historyToday else 1
 
         # Score calculation
-        points_deducted = seconds * 16 # 16 points deducted per second
+        points_deducted = effective_seconds * 16 # 16 points deducted per second
         base_points = 1000 - points_deducted
         final_score = int(base_points * multiplier)
 
@@ -74,7 +74,7 @@ def stop_alarm_calc(time_str, seconds_str):
             insert_history(
                 date=dateToday,
                 alarmStopped=1,
-                stopTime=seconds,
+                stopTime=effective_seconds,
                 streak=1,
                 score=final_score,
                 alarmAttempted=1
@@ -84,7 +84,7 @@ def stop_alarm_calc(time_str, seconds_str):
             update_today(
                 date=dateToday,
                 alarmStopped=1,
-                stopTime=seconds,
+                stopTime=effective_seconds,
                 score=final_score,
                 alarmAttempted=1
             )
