@@ -1,9 +1,11 @@
 # Imports
 from datetime import datetime, date, timedelta
 
-from modules.get_config import get_alarm_time, get_clockout_time, get_last_required_day
+from modules.get_config import get_alarm_time, get_clockout_time, get_last_required_day, get_is_light_control_enabled
 from modules.get_from_db import get_dates_history
 from modules.update_db import insert_history
+
+from light_control.sunset_control import sunset_cancel_event
 
 # File paths
 config_file = 'config.json'
@@ -51,6 +53,8 @@ def clockout_action():
     clockout_in_range = is_clockout_in_range(allowed_before_time, clockout_time, now_time)
 
     if clockout_in_range:
+        if get_is_light_control_enabled():
+            sunset_cancel_event.set()  # Cancel any ongoing sunset
 
         if lastHistory is None:
             previous_streak = 0  # no previous entries or not consecutive day

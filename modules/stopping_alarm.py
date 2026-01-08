@@ -1,7 +1,7 @@
 # Imports
 from datetime import datetime, date, timedelta
 
-from modules.get_config import get_alarm_time
+from modules.get_config import get_alarm_time, get_is_light_control_enabled
 from modules.get_from_db import get_dates_history
 from modules.handle_sounds import loop_sound_toggle
 from modules.update_db import insert_history, update_today
@@ -59,7 +59,7 @@ def stop_alarm_calc(time_str, seconds_str):
         # If early, zero seconds
         effective_seconds = 0 if time_dt < alarm_dt else seconds
 
-        if effective_seconds == 0:
+        if effective_seconds == 0 and get_is_light_control_enabled():
             sunrise_cancel_event.set()
 
         multiplier = get_multiplier(todays_history) if historyToday else 1

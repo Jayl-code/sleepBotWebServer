@@ -6,8 +6,10 @@ import threading
 from modules.get_config import get_alarm_time, alarm_today, get_is_light_control_enabled, get_clockout_time
 from modules.handle_sounds import loop_sound_toggle
 from modules.get_from_db import get_dates_history
+from modules.notifications import send_notification, keys_file_there
 
 from light_control.sunrise import run_sunrise
+from light_control.sunset import run_sunset
 
 
 
@@ -115,14 +117,14 @@ def watch_alarm():
 
             else:
                 # COOLDOWN LOGIC
-                if get_is_light_control_enabled():
-                    if now >= cooldown_dt and not cooldown_triggered:
-                        #send_notification()
-                        
-                        #threading.Thread(
-                            #target=None, #todo add
-                            #daemon=True
-                        #).start()
-                        cooldown_triggered = True
+                if now >= cooldown_dt and not cooldown_triggered:
+                    if keys_file_there():
+                        send_notification()
+                    if get_is_light_control_enabled():
+                        threading.Thread(
+                            target=run_sunset,
+                            daemon=True
+                        ).start()
+                    cooldown_triggered = True
 
         time.sleep(1)
