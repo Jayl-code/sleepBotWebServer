@@ -117,6 +117,8 @@ def watch_alarm():
                 # COOLDOWN LOGIC
                 if get_is_light_control_enabled():
                     if now >= cooldown_dt and not cooldown_triggered:
+                        #send_notification()
+                        
                         #threading.Thread(
                             #target=None, #todo add
                             #daemon=True

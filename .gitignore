@@ -7,3 +7,4 @@ config.json
 /modules/__pycache__
 .DS_Store
 /light_control
+keys.json
