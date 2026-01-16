@@ -44,6 +44,7 @@ start_background_thread()
 # -------------------------
 @app.route('/')
 def home():
+    log.debug("Rendering home page")
     streakActive, streak=get_current_streak()
     habitsActive, habits = get_current_habits()
     return render_template(
