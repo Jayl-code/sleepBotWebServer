@@ -1,31 +1,30 @@
 # Imports
-from datetime import date, timedelta
+from datetime import date
 
 from modules.get_config import get_last_required_day
-from modules.get_from_db import get_dates_history, get_current_highscore
+from modules.get_from_db import get_dates_history
 
-# File paths
-db_file = 'database.db'
 
 # Retrieves current streak, highscore, and score from the database to send to frontend
-def get_highscore():
-    highscore = get_current_highscore() 
-    if highscore is None:
-        return 0 
-    
-    return highscore[0]
 
-def get_score_and_streak():
+def get_current_score():
     today = str(date.today())
-    today_history = get_dates_history(today, ["score", "streak"])
-    if not today_history or len(today_history) < 2:
+    todays_score = get_dates_history(today, ["score"])
+    if not todays_score:
+        return 0
+    return todays_score[0]
+
+def get_current_streak():
+    today = str(date.today())
+    today_history = get_dates_history(today, ["streak"])
+    if not today_history:
         last_streak = get_dates_history(get_last_required_day(), ["streak"])
         if not last_streak:
-            return 0, 0
+            return False, 0
         else:
-            return 0, last_streak[0]
-        
-    return today_history[0], today_history[1]
+            return False, last_streak[0]
+
+    return True, today_history[0]
 
 def get_habits():
     habits = ["habit1", "habit2", "habit3", "habit4"]
@@ -51,4 +50,4 @@ def get_habits():
             habit_values[h] = last_habits[i]
             habit_is_today[h] = False
         
-    return habit_values, habit_is_today
+    return habit_is_today, habit_values

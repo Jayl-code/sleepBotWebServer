@@ -17,25 +17,25 @@
 
   <!-- Streak -->
   <div class="streak">
-    <div class="streak_row">
-      <div id="streak" class="value">Streak:</div>
+    <div class="streak_row {{ 'active' if streakActive else 'inactive' }}">
+      <div id="streak">Streak: {{ streak }}</div>
       <i class="fa-solid fa-fire"></i>
     </div>
   </div>
 
   <!-- Scores -->
-  <div class="scores">
-    <div id="highscore" class="value">High Score:</div>
-    <div id="current_score" class="value">Current Score:</div>
+  <div class="scores" onclick="location.reload()">
+    <div id="highscore" class="{{ 'active' if highscore > 0 and highscore == score else 'inactive'}}">High Score: {{ highscore }}</div>
+    <div id="current_score">Current Score: {{ score }}</div>
   </div>
 
   <!-- Habits -->
   <div class="habits">
     <div class="habits_row">
-      <div id="habit1" class="value">0</div>
-      <div id="habit2" class="value">0</div>
-      <div id="habit3" class="value">0</div>
-      <div id="habit4" class="value">0</div>
+      <div id="habit1" class="{{ 'h_on' if habitsActive.habit1 else 'h_off' }}">{{ habits.habit1 }}</div>
+      <div id="habit2" class="{{ 'h_on' if habitsActive.habit2 else 'h_off' }}">{{ habits.habit2 }}</div>
+      <div id="habit3" class="{{ 'h_on' if habitsActive.habit3 else 'h_off' }}">{{ habits.habit3 }}</div>
+      <div id="habit4" class="{{ 'h_on' if habitsActive.habit4 else 'h_off' }}">{{ habits.habit4 }}</div>
     </div>
   </div>
 
@@ -44,7 +44,7 @@
 
     <!-- Alarm -->
     <div class="alarm_time">
-      <div id="alarm_time" class="value">
+      <div id="alarm_time">
         <i class="fa-solid fa-alarm-clock"></i> 
         Alarm time: {{ alarm_time }}
         <button id="alarm_settings_btn" type="button">
@@ -61,7 +61,7 @@
 
     <!-- Clockout -->
     <div class="clockout_time">
-      <div id="clockout_time" class="value">
+      <div id="clockout_time">
         <i class="fa-solid fa-clock"></i>
         Clockout time: {{ clockout_time }}
         <button id="clockout_settings_btn" type="button">
