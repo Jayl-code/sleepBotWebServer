@@ -9,3 +9,4 @@ config.json
 .DS_Store
 /light_control
 keys.json
+/logs

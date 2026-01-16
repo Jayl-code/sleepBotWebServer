@@ -26,7 +26,7 @@ def get_current_streak():
 
     return True, today_history[0]
 
-def get_habits():
+def get_current_habits():
     habits = ["habit1", "habit2", "habit3", "habit4"]
     today = str(date.today())
     last_habits = get_dates_history(get_last_required_day(), habits)

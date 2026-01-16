@@ -7,7 +7,7 @@ from modules.alarm_thread import watch_alarm
 from modules.stopping_alarm import stop_alarm_calc
 from modules.handle_clockout import clockout_action
 from modules.handle_habits import habit_done
-from modules.get_update import get_current_streak, get_habits, get_current_score
+from modules.get_update import get_current_streak, get_current_habits, get_current_score
 from modules.update_config import save_alarm_time, save_clockout_time, save_alarm_days, toggle_light_control
 from modules.get_from_db import get_all_history, get_current_highscore
 from modules.update_db import delete_row, update_today
@@ -38,7 +38,7 @@ start_background_thread()
 @app.route('/')
 def home():
     streakActive, streak=get_current_streak()
-    habitsActive, habits = get_habits()
+    habitsActive, habits = get_current_habits()
     return render_template(
         'index.html',
         alarm_time=get_alarm_time(),
