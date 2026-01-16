@@ -1,6 +1,7 @@
 # Imports
 from flask import Flask, render_template, redirect, url_for, request, jsonify, abort
 import threading
+import logging
 
 from modules.get_config import get_alarm_time, get_clockout_time, get_alarm_days, get_is_light_control_enabled
 from modules.alarm_thread import watch_alarm
@@ -14,10 +15,17 @@ from modules.update_db import delete_row, update_today
 
 from db_setup import setup_database
 from config_setup import setup_config
+from logging_config import setup_logging
 
 # Create config, DB and table if they don't exist
 setup_database()
 setup_config()
+
+# Setup logging
+setup_logging()
+
+app = Flask(__name__)
+log = logging.getLogger(__name__)
 
 thread_started = False
 
@@ -28,7 +36,6 @@ def start_background_thread():
         thread.start()
         thread_started = True
 
-app = Flask(__name__)
 start_background_thread()
 
 
