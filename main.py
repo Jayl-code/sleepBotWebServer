@@ -7,9 +7,9 @@ from modules.alarm_thread import watch_alarm
 from modules.stopping_alarm import stop_alarm_calc
 from modules.handle_clockout import clockout_action
 from modules.handle_habits import habit_done
-from modules.get_update import get_highscore, get_score_and_streak, get_habits
+from modules.get_update import get_current_streak, get_habits, get_current_score
 from modules.update_config import save_alarm_time, save_clockout_time, save_alarm_days, toggle_light_control
-from modules.get_from_db import get_all_history
+from modules.get_from_db import get_all_history, get_current_highscore
 from modules.update_db import delete_row, update_today
 
 from db_setup import setup_database
@@ -37,31 +37,21 @@ start_background_thread()
 # -------------------------
 @app.route('/')
 def home():
+    streakActive, streak=get_current_streak()
+    habitsActive, habits = get_habits()
     return render_template(
         'index.html',
         alarm_time=get_alarm_time(),
         clockout_time=get_clockout_time(),
         days=get_alarm_days(),
-        light_mode=get_is_light_control_enabled()
+        light_mode=get_is_light_control_enabled(),
+        highscore=get_current_highscore(),
+        score=get_current_score(),
+        streakActive=streakActive,
+        streak=streak,
+        habitsActive=habitsActive,
+        habits=habits
     )
-
-
-# -------------------------
-#     AJAX UPDATE ROUTES
-# -------------------------
-@app.route('/update_highscore')
-def update_highscore():
-    return jsonify({"highscore": get_highscore()})
-
-@app.route('/update_score_and_streak')
-def update_score_and_streak():
-    score, streak = get_score_and_streak()
-    return jsonify({"score": score, "streak": streak})
-
-@app.route('/update_habits')
-def update_habits():
-    values, is_today = get_habits()
-    return jsonify({"values": values, "is_today": is_today})
 
 
 # -------------------------
