@@ -81,7 +81,7 @@
   <!-- Days -->
   <div class="day_container">
     <div class="day_row">
-      {% for day, enabled in days.items() %}
+      {% for day, enabled in alarm_days.items() %}
         <div class="day_box {{ 'on' if enabled else 'off' }}"
              onclick="toggleDay('{{ day }}', this)">
           {{ day[0].upper() }}

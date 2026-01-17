@@ -1,3 +1,5 @@
+# config_setup.py
+
 # Imports
 import json
 
@@ -28,7 +30,7 @@ def setup_config(file_path=config_file):
         # File already exists
         with open(file_path, 'r') as file:
             content = file.read().strip()
-            if not content:  # empty file
+            if not content:  # empty file so fill with defaults
                 with open(file_path, "w") as f:
                     json.dump(defaults, f, indent=4)
 

@@ -1,3 +1,5 @@
+# time_thread.py
+
 # Imports
 import time
 from datetime import datetime, timedelta
@@ -16,6 +18,8 @@ log = logging.getLogger(__name__)
 
 # Watches for set times and triggers alarm sound when time matches 
 def watch_times():
+    log.info("Starting watch_times thread")
+
     last_alarm_time = None
     last_clockout_time = None
 
@@ -39,23 +43,30 @@ def watch_times():
                 cooldown_triggered = False
                 last_day = now.day
 
+            # Get current alarm and clockout times from config file
             alarm_str = get_alarm_time()
             clockout_str = get_clockout_time()
 
             if alarm_str != last_alarm_time:
-                # Alarm time changed
+                # Alarm time changed so reset triggers
                 alarm_triggered_today = False
                 wakeup_triggered = False
                 last_alarm_time = alarm_str
 
             if clockout_str != last_clockout_time:
-                # Clockout time changed
+                # Clockout time changed so reset triggers
                 clockout_triggered_today = False
                 cooldown_triggered = False
                 last_clockout_time = clockout_str
 
-            alarm_hour, alarm_minute = map(int, alarm_str.split(":"))
-            clockout_hour, clockout_minute = map(int, clockout_str.split(":"))
+            try:
+                alarm_hour, alarm_minute = map(int, alarm_str.split(":"))
+                clockout_hour, clockout_minute = map(int, clockout_str.split(":"))
+            except ValueError:
+                # Config file has invalid time format
+                log.error("Invalid time format: alarm=%s clockout=%s", alarm_str, clockout_str)
+                time.sleep(5)
+                continue
 
             # Build alarm datetime
             alarm_dt = now.replace(
@@ -88,6 +99,7 @@ def watch_times():
             cooldown_dt = clockout_dt - timedelta(minutes=60)
 
             if not alarm_triggered_today:
+                # Check DB if alarm already triggered today
                 todays_alarm_history = get_dates_history(str(alarm_dt.date()), ["alarmAttempted"])
                 if todays_alarm_history and todays_alarm_history[0] == 1:
                     alarm_triggered_today = True
@@ -96,6 +108,7 @@ def watch_times():
                     # WAKEUP LOGIC
                     if get_is_light_control_enabled():
                         if now >= wakeup_dt and not wakeup_triggered:
+                            log.info("Starting sunrise from watch_times thread")
                             wakeup_triggered = True
                             threading.Thread(
                                 target=run_sunrise,
@@ -105,10 +118,12 @@ def watch_times():
                     # ALARM LOGIC
                     if alarm_today():
                         if now >= alarm_dt and not alarm_triggered_today:
+                            log.info("Triggering alarm from watch_times thread")
                             alarm_triggered_today = True
                             loop_sound_toggle(True)
                             
             if not clockout_triggered_today:
+                # Check DB if clockout already triggered today
                 todays_clockout_history = get_dates_history(str(clockout_dt.date()), ["clockout"])
                 if todays_clockout_history and todays_clockout_history[0] == 1:
                     clockout_triggered_today = True
@@ -116,9 +131,12 @@ def watch_times():
                 else:
                     # COOLDOWN LOGIC
                     if now >= cooldown_dt and not cooldown_triggered:
+                        # Check for keys file before sending notification
                         if keys_file_there():
-                            send_notification()
+                            log.info("Sending clockout notification from watch_times thread")
+                            send_notification() # Send notification to users phone to start cooldown
                         if get_is_light_control_enabled():
+                            log.info("Starting sunset from watch_times thread")
                             threading.Thread(
                                 target=run_sunset,
                                 daemon=True

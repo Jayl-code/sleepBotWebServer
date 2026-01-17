@@ -1,3 +1,6 @@
+# db_setup.py
+
+# Imports
 import sqlite3
 
 def setup_database():
@@ -22,7 +25,6 @@ def setup_database():
         alarmAttempted INTEGER DEFAULT 0 CHECK(alarmAttempted IN (0, 1))
         )
     """)
-
 
     conn.commit()
 

@@ -1,3 +1,5 @@
+# Module: get_config.py
+
 # Imports
 import json
 from datetime import date, timedelta, datetime
@@ -5,6 +7,7 @@ from datetime import date, timedelta, datetime
 # File paths
 config_file = 'config.json'
 
+# Index mapping for days of the week
 day_index = {
         "monday": 0,
         "tuesday": 1,
@@ -41,28 +44,39 @@ def get_date_of_last_day(target_day_name):
     days_back = (today - target) % 7 or 7
     return date.today() - timedelta(days=days_back)
 
+# Find the most recent day before today that has alarm active and return its date
 def get_last_required_day(file_path=config_file):
+    # Get today's day name
     todays_day =  datetime.today().strftime("%A").lower()
+    
     idx = day_index[todays_day]
     checking_index = (idx - 1) % 7
 
     index_to_weekday = {v: k for k, v in day_index.items()}
 
+    # Get contents of config file
     with open(file_path, 'r') as file:
         content = file.read().strip()
         data = json.loads(content)
 
-    for i in range(7):
+    # Loop through days backwards to find last active day
+    for _ in range(7):
         checking_day_name = index_to_weekday[checking_index]
+
         if data["alarm_days"][checking_day_name] == True:
             return get_date_of_last_day(checking_day_name)
+        
+        # Check previous day in next iteration
         checking_index = (checking_index - 1) % 7
 
     return 
 
+# Returns True if alarm is active today, otherwise False
 def alarm_today(file_path=config_file):
+    # Get today's day name
     todays_day =  datetime.today().strftime("%A").lower()
 
+    # Get contents of config file
     with open(file_path, 'r') as file:
         content = file.read().strip()
         data = json.loads(content)
@@ -71,6 +85,7 @@ def alarm_today(file_path=config_file):
 
     return active_today
 
+# Returns alarm days dictionary from config file
 def get_alarm_days(file_path=config_file):
     with open(file_path, 'r') as file:
         content = file.read().strip()
@@ -80,6 +95,7 @@ def get_alarm_days(file_path=config_file):
     
     return alarm_data
 
+# Returns True if light control is enabled, otherwise False
 def get_is_light_control_enabled(file_path=config_file):
     with open(file_path, 'r') as file:
         content = file.read().strip()
