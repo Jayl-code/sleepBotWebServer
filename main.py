@@ -4,7 +4,7 @@ import threading
 import logging
 
 from modules.get_config import get_alarm_time, get_clockout_time, get_alarm_days, get_is_light_control_enabled
-from modules.alarm_thread import watch_alarm
+from modules.time_thread import watch_times
 from modules.stopping_alarm import stop_alarm_calc
 from modules.handle_clockout import clockout_action
 from modules.handle_habits import habit_done
@@ -15,14 +15,10 @@ from modules.update_db import delete_row, update_today
 
 from db_setup import setup_database
 from config_setup import setup_config
-from logging_config import setup_logging
 
 # Create config, DB and table if they don't exist
 setup_database()
 setup_config()
-
-# Setup logging
-setup_logging()
 
 app = Flask(__name__)
 log = logging.getLogger(__name__)
@@ -32,7 +28,7 @@ thread_started = False
 def start_background_thread():
     global thread_started
     if not thread_started:
-        thread = threading.Thread(target=watch_alarm, daemon=True)
+        thread = threading.Thread(target=watch_times, daemon=True)
         thread.start()
         thread_started = True
 
@@ -44,7 +40,7 @@ start_background_thread()
 # -------------------------
 @app.route('/')
 def home():
-    log.debug("Rendering home page")
+    log.info("Rendering home page")
     streakActive, streak=get_current_streak()
     habitsActive, habits = get_current_habits()
     return render_template(
