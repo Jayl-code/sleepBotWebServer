@@ -14,7 +14,7 @@ def habit_done(habit_id):
     last_history = get_dates_history(get_last_required_day(), ["habit1", "habit2", "habit3", "habit4"])
 
     if not todays_history:
-        print("Day not yet in database")
+        log.info("Day not yet in database")
         return
 
     # If no previous day exists, treat all streaks as 0
