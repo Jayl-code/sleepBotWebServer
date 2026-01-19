@@ -29,10 +29,12 @@ SSID = "Your_SSID_Here" # Put your WiFi SSID here
 PASSWORD = "Your_Password_Here" # Put your WiFi Password here
 
 # Server URL (UPDATE WITH YOUR SERVER IP AND PORT)
-STOP_URL = "http://(PUT YOUR SERVER IP AND PORT HERE)/stop_alarm" # Put the IP and port of the server here (eg 192.160.0.10:5001)
-HABIT_URL = "http://(PUT YOUR SERVER IP AND PORT HERE)/habit/"    # Put the IP and port of the server here (eg 192.160.0.10:5001)
+SERVER_URL = "PUT YOUR SERVER IP AND PORT HERE" # (eg 192.160.0.10:5001)
 
 #--------------------User Change NEEDED end--------------------
+
+STOP_URL = f"http://{SERVER_URL}/stop_alarm"
+HABIT_URL = f"http://{SERVER_URL}/habit/" 
 
 wdt=WDT(timeout=60000)
 
