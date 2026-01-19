@@ -1,8 +1,11 @@
 from os.path import isfile
 import json
 import requests
+import logging
 
 from modules.get_config import get_alarm_time
+
+log = logging.getLogger(__name__)
 
 def keys_file_there():
     return isfile('keys.json')
@@ -26,13 +29,17 @@ def get_app_token(file_path="keys.json"):
     return app_token
 
 def send_notification(title="Clockout within 1 Hour"):
-    requests.post(
-        "https://api.pushover.net/1/messages.json",
-        data={
-            "token": get_app_token(),
-            "user": get_user_key(),
-            "title": title,
-            "message": f"Alarm set for {get_alarm_time()}."
-        },
-        timeout=10
-    )
+    try:
+        requests.post(
+            "https://api.pushover.net/1/messages.json",
+            data={
+                "token": get_app_token(),
+                "user": get_user_key(),
+                "title": title,
+                "message": f"Alarm set for {get_alarm_time()}."
+            },
+            timeout=10
+        )
+        log.info("Notification sent via Pushover.")
+    except Exception:
+        log.error("Failed to send notification via Pushover.")

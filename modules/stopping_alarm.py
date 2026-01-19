@@ -1,5 +1,6 @@
 # Imports
 from datetime import datetime, date, timedelta
+import logging
 
 from modules.get_config import get_alarm_time, get_is_light_control_enabled
 from modules.get_from_db import get_dates_history
@@ -8,15 +9,15 @@ from modules.update_db import insert_history, update_today
 
 from light_control.sunrise_control import sunrise_cancel_event
 
+log = logging.getLogger(__name__)
+
 # File paths
 config_file = 'config.json'
 db_file = 'database.db'
 
 def build_time_datetime(time_str, alarm_time):
-    """
-    Returns a datetime for time_str that correctly aligns
-    with the alarm datetime, even across midnight.
-    """
+    #Returns a datetime for time_str that correctly aligns
+    #with the alarm datetime, even across midnight.
     today = date.today()
 
     alarm_dt = datetime.strptime(
@@ -47,17 +48,17 @@ def stop_alarm_calc(time_str, seconds_str):
     historyToday = True if todays_history else False
 
     if historyToday and todays_history[0] == 1:
-        print("Alarm already stopped for today.")
+        log.info("Alarm already stopped for today.")
         return
     
     time_dt, alarm_dt = build_time_datetime(time_str, alarm_time)
     window_start = alarm_dt - timedelta(hours=4)
 
     if window_start <= time_dt <= alarm_dt:
-        print(f"Alarm stopped after {seconds} seconds.")
-
         # If early, zero seconds
         effective_seconds = 0 if time_dt < alarm_dt else seconds
+
+        log.info(f"Alarm stopped after {effective_seconds} seconds.")
 
         if effective_seconds == 0 and get_is_light_control_enabled():
             sunrise_cancel_event.set()

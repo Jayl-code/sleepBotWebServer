@@ -1,8 +1,11 @@
 from datetime import date
+import logging
 
 from modules.get_from_db import get_dates_history
 from modules.get_config import get_last_required_day
 from modules.update_db import update_today
+
+log = logging.getLogger(__name__)
 
 def habit_done(habit_id):
 
@@ -34,3 +37,4 @@ def habit_done(habit_id):
             score=new_score,
             **{habit_name: new_streak}
         )
+        log.info(f"Habit {habit_id} completed. Habit streak: {new_streak}, Score increased by {bonus}.")

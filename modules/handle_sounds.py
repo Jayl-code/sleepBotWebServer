@@ -1,12 +1,16 @@
 import subprocess
 import threading
 import time
+import logging
+
+log = logging.getLogger(__name__)
 
 _looping = False
 _loop_thread = None
 _current_process = None
 
 def loop_sound_toggle(run: bool, filename="static/sounds/alarm_sound.wav", max_time=300):
+    log.info("loop_sound_toggle called with run=%s", run)
     global _looping, _loop_thread, _current_process
 
     # STOP

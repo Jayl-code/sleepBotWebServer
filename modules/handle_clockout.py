@@ -1,11 +1,14 @@
 # Imports
 from datetime import datetime, date, timedelta
+import logging
 
 from modules.get_config import get_alarm_time, get_clockout_time, get_last_required_day, get_is_light_control_enabled
 from modules.get_from_db import get_dates_history
 from modules.update_db import insert_history
 
 from light_control.sunset_control import sunset_cancel_event
+
+log = logging.getLogger(__name__)
 
 # File paths
 config_file = 'config.json'
@@ -38,7 +41,7 @@ def clockout_action():
     alreadyClockedOut = get_dates_history(date_of_alarm, ["id"])
 
     if alreadyClockedOut: 
-        print("Clockout already recorded for today.")
+        log.info("Clockout already recorded for today.")
         return "0"
     
     if not get_last_required_day():
@@ -67,11 +70,12 @@ def clockout_action():
                 clockout=1,
                 streak=new_streak
             )
+        log.info("Clockout recorded successfully.")
         
         return "1"
 
     else:
-        print("Clockout action not in allowed time range.")
+        log.info("Clockout action not in allowed time range.")
 
         return "0"
 
