@@ -15,5 +15,5 @@ log = logging.getLogger(__name__)
 
 # Main starting point for gunicorn 
 if __name__ == "__main__":
+    log.info("Starting WSGI server...")
     app.run()
-    log.info("WSGI server started")
