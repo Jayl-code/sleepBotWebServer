@@ -13,7 +13,8 @@ setup_logging()
 # Initialize logger
 log = logging.getLogger(__name__)
 
+log.info("Starting WSGI server...")
+
 # Main starting point for gunicorn 
 if __name__ == "__main__":
-    log.info("Starting WSGI server...")
     app.run()
