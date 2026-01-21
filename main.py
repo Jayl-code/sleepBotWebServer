@@ -5,6 +5,8 @@ from flask import Flask, render_template, redirect, url_for, request, jsonify, a
 import threading
 import logging
 
+log = logging.getLogger(__name__)
+
 from modules.get_config import get_alarm_time, get_clockout_time, get_alarm_days, get_is_light_control_enabled
 from modules.time_thread import watch_times
 from modules.stopping_alarm import stop_alarm_calc
@@ -18,7 +20,6 @@ from modules.update_db import delete_row, update_today
 from db_setup import setup_database
 from config_setup import setup_config
 
-log = logging.getLogger(__name__)
 
 # Create config, DB and DB table if they don't exist
 setup_database()
@@ -192,6 +193,8 @@ def update_day():
 # -------------------------
 #     START APP WHEN TESTING 
 # -------------------------
-#if __name__ == '__main__':
-#    log.debug("Starting app in debug mode")
-#    app.run(host='0.0.0.0', port=5001, debug=True, use_reloader=False)
+# if __name__ == '__main__':
+#     from logging_config import setup_logging
+#     setup_logging()
+#     log.debug("Starting app in debug mode")
+#     app.run(host='0.0.0.0', port=5001, debug=True, use_reloader=False)
