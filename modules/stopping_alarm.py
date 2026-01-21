@@ -1,15 +1,24 @@
 # Imports
 from datetime import datetime, date, timedelta
+from contextlib import nullcontext
+from threading import Event
 import logging
+
+log = logging.getLogger(__name__)
 
 from modules.get_config import get_alarm_time, get_is_light_control_enabled
 from modules.get_from_db import get_dates_history
 from modules.handle_sounds import loop_sound_toggle
 from modules.update_db import insert_history, update_today
 
-from light_control.sunrise_control import sunrise_cancel_event
+try:
+    from light_control.sunrise_control import sunrise_cancel_event, sunrise_running, sunrise_lock
+except ImportError:
+    sunrise_lock = nullcontext()
+    sunrise_running = False
+    sunrise_cancel_event = Event()
+    log.debug("Light control not installed or incorrectly set up.")
 
-log = logging.getLogger(__name__)
 
 # File paths
 config_file = 'config.json'
@@ -39,6 +48,11 @@ def build_time_datetime(time_str, alarm_time):
 def stop_alarm_calc(time_str, seconds_str):
     loop_sound_toggle(False)
 
+    if get_is_light_control_enabled():
+        with sunrise_lock:
+            if sunrise_running:
+                sunrise_cancel_event.set()
+
     alarm_time = get_alarm_time()
     dateToday = str(date.today())
     seconds = int(seconds_str)
@@ -59,9 +73,6 @@ def stop_alarm_calc(time_str, seconds_str):
         effective_seconds = 0 if time_dt < alarm_dt else seconds
 
         log.info(f"Alarm stopped after {effective_seconds} seconds.")
-
-        if effective_seconds == 0 and get_is_light_control_enabled():
-            sunrise_cancel_event.set()
 
         multiplier = get_multiplier(todays_history) if historyToday else 1
 
