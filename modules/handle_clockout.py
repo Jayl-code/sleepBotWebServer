@@ -1,6 +1,5 @@
 # Imports
 from datetime import datetime, date, timedelta
-from contextlib import nullcontext
 from threading import Event
 import logging
 
@@ -11,10 +10,8 @@ from modules.get_from_db import get_dates_history
 from modules.update_db import insert_history
 
 try:
-    from light_control.sunset_control import sunset_cancel_event, sunset_running, sunset_lock
+    from light_control.sunset_control import sunset_cancel_event
 except ImportError:
-    sunset_lock = nullcontext()
-    sunset_running = False
     sunset_cancel_event = Event()
     log.debug("Light control not installed or incorrectly set up.")
 
@@ -26,9 +23,7 @@ db_file = 'database.db'
 # Processes clockout action and updates database accordingly
 def clockout_action():
     if get_is_light_control_enabled():
-        with sunset_lock:
-            if sunset_running:
-                sunset_cancel_event.set() # Cancel any ongoing sunset
+        sunset_cancel_event.set() # Cancel any ongoing sunset
 
     allowed_time_before_amount = 3  # Hours
 

@@ -1,6 +1,5 @@
 # Imports
 from datetime import datetime, date, timedelta
-from contextlib import nullcontext
 from threading import Event
 import logging
 
@@ -12,10 +11,8 @@ from modules.handle_sounds import loop_sound_toggle
 from modules.update_db import insert_history, update_today
 
 try:
-    from light_control.sunrise_control import sunrise_cancel_event, sunrise_running, sunrise_lock
+    from light_control.sunrise_control import sunrise_cancel_event
 except ImportError:
-    sunrise_lock = nullcontext()
-    sunrise_running = False
     sunrise_cancel_event = Event()
     log.debug("Light control not installed or incorrectly set up.")
 
@@ -49,9 +46,7 @@ def stop_alarm_calc(time_str, seconds_str):
     loop_sound_toggle(False)
 
     if get_is_light_control_enabled():
-        with sunrise_lock:
-            if sunrise_running:
-                sunrise_cancel_event.set()
+        sunrise_cancel_event.set()
 
     alarm_time = get_alarm_time()
     dateToday = str(date.today())
