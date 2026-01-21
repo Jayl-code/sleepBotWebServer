@@ -36,7 +36,7 @@ SERVER_URL = "PUT YOUR SERVER IP AND PORT HERE" # (eg 192.160.0.10:5001)
 STOP_URL = f"http://{SERVER_URL}/stop_alarm"
 HABIT_URL = f"http://{SERVER_URL}/habit/" 
 
-wdt=WDT(timeout=60000)
+wdt=WDT(timeout=8388)  # Feed the watchdog every ~8 seconds
 
 wlan = network.WLAN(network.STA_IF)
 
