@@ -6,15 +6,21 @@ from datetime import datetime, timedelta
 import threading
 import logging
 
+log = logging.getLogger(__name__)
+
 from modules.get_config import get_alarm_time, alarm_today, get_is_light_control_enabled, get_clockout_time
 from modules.handle_sounds import loop_sound_toggle
 from modules.get_from_db import get_dates_history
 from modules.notifications import send_notification, keys_file_there
 
-from light_control.sunrise import run_sunrise
-from light_control.sunset import run_sunset
+try:
+    from light_control.sunrise import run_sunrise
+    from light_control.sunset import run_sunset
+except ImportError:
+    run_sunrise = None
+    run_sunset = None
+    log.debug("Light control not installed or incorrectly set up.")
 
-log = logging.getLogger(__name__)
 
 # Watches for set times and triggers alarm sound when time matches 
 def watch_times():
@@ -46,6 +52,13 @@ def watch_times():
             # Get current alarm and clockout times from config file
             alarm_str = get_alarm_time()
             clockout_str = get_clockout_time()
+
+            LIGHT_CONTROL_AVAILABLE = (
+                get_is_light_control_enabled()
+                and run_sunrise is not None
+                and run_sunset is not None
+            )
+
 
             if alarm_str != last_alarm_time:
                 # Alarm time changed so reset triggers
@@ -84,14 +97,6 @@ def watch_times():
                 microsecond=0
             )
 
-            # If alarm already passed today, it must be tomorrow
-            if alarm_dt <= now:
-                alarm_dt += timedelta(days=1)
-
-            # If clockout already passed today, it must be tomorrow
-            if clockout_dt <= now:
-                clockout_dt += timedelta(days=1)
-
             # 10 minutes before alarm
             wakeup_dt = alarm_dt - timedelta(minutes=10)
 
@@ -106,18 +111,18 @@ def watch_times():
 
                 else:
                     # WAKEUP LOGIC
-                    if get_is_light_control_enabled():
-                        if now >= wakeup_dt and not wakeup_triggered:
+                    if LIGHT_CONTROL_AVAILABLE:
+                        if wakeup_dt <= now < alarm_dt and not wakeup_triggered:
                             log.info("Starting sunrise from watch_times thread")
                             wakeup_triggered = True
                             threading.Thread(
-                                target=run_sunrise,
-                                daemon=True
+                               target=run_sunrise,
+                               daemon=True
                             ).start()         
 
                     # ALARM LOGIC
                     if alarm_today():
-                        if now >= alarm_dt and not alarm_triggered_today:
+                        if alarm_dt <= now < alarm_dt + timedelta(minutes=1) and not alarm_triggered_today:
                             log.info("Triggering alarm from watch_times thread")
                             alarm_triggered_today = True
                             loop_sound_toggle(True)
@@ -130,12 +135,12 @@ def watch_times():
 
                 else:
                     # COOLDOWN LOGIC
-                    if now >= cooldown_dt and not cooldown_triggered:
+                    if cooldown_dt <= now < clockout_dt and not cooldown_triggered:
                         # Check for keys file before sending notification
                         if keys_file_there():
                             log.info("Sending clockout notification from watch_times thread")
                             send_notification() # Send notification to users phone to start cooldown
-                        if get_is_light_control_enabled():
+                        if LIGHT_CONTROL_AVAILABLE:
                             log.info("Starting sunset from watch_times thread")
                             threading.Thread(
                                 target=run_sunset,
