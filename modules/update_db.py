@@ -1,16 +1,19 @@
+
+
 # Imports
 import sqlite3
+import time
+import logging
+
+log = logging.getLogger(__name__)
 
 # File paths
 db_file = 'database.db'
 
-def insert_history(**kwargs):
-    conn = sqlite3.connect(db_file)
-    cur = conn.cursor()
-
-    # Cannot insert without date
+def insert_history(**kwargs): # Call with (column name):(value) pairs to insert a new row. Must include date.
     date = kwargs.get("date")
-    if not date:
+    if not date: # Cannot insert without date
+        log.exception("insert_history() called without date")
         raise ValueError("date is required for insert_history()")
 
     # Only use the keys that were passed in
@@ -24,21 +27,33 @@ def insert_history(**kwargs):
         VALUES ({placeholders})
     """
 
-    cur.execute(query, values)
-    conn.commit()
-
-    cur.close()
-    conn.close()
+    # Retry logic
+    for attempt in range(2):
+        try:
+            with sqlite3.connect(db_file, timeout=10) as conn:
+                try:
+                    cur = conn.cursor()
+                    cur.execute(query, values) # Execute with dynamic values
+                    conn.commit()
+                    log.info(f"Inserted record for {date}")
+                    return
+                except Exception as e:
+                    conn.rollback()
+                    log.warning(f"Error inserting record for {date}: {e}")
+                    raise
+        except sqlite3.OperationalError as e:
+            if attempt == 1:  # Last attempt
+                log.error(f"Failed to insert after 2 tries: {e}")
+                raise
+            log.warning(f"DB locked, retrying...")
+            time.sleep(0.5)
 
     return
 
 def update_today(**kwargs): # Call with date:(Date of row to update), (row to update):(New value)
-    conn = sqlite3.connect(db_file)
-    cur = conn.cursor()
-
-    # Cannot update without date
     date = kwargs.get("date")
-    if not date:
+    if not date: # Cannot update without date
+        log.exception("update_today() called without date")
         raise ValueError("date is required for update_today()")
 
     # Prepare dynamic SET clause
@@ -53,8 +68,6 @@ def update_today(**kwargs): # Call with date:(Date of row to update), (row to up
 
     # Nothing to update?
     if not set_parts:
-        cur.close()
-        conn.close()
         return
 
     set_clause = ", ".join(set_parts)
@@ -66,22 +79,49 @@ def update_today(**kwargs): # Call with date:(Date of row to update), (row to up
         WHERE date = ?
     """
 
-    cur.execute(query, tuple(values))
-    conn.commit()
-
-    cur.close()
-    conn.close()
+    # Retry logic
+    for attempt in range(2):
+        try:
+            with sqlite3.connect(db_file, timeout=10) as conn:
+                try:
+                    cur = conn.cursor()
+                    cur.execute(query, tuple(values)) # Execute with dynamic values
+                    conn.commit()
+                    log.info(f"Updated record for {date}")
+                    return
+                except Exception as e:
+                    conn.rollback()
+                    log.warning(f"Error updating record for {date}: {e}")
+                    raise
+        except sqlite3.OperationalError as e:
+            if attempt == 1:  # Last attempt
+                log.error(f"Failed to update after 2 tries: {e}")
+                raise
+            log.warning(f"DB locked, retrying...")
+            time.sleep(0.5)
 
     return
 
-def delete_row(id):
-
-    conn = sqlite3.connect(db_file)
-    cursor = conn.cursor()
-
-    cursor.execute("DELETE FROM history WHERE id = ?", (id,))
-
-    conn.commit()
-    conn.close()
+def delete_row(id): # Call with the id of the row to delete
+    # Retry logic
+    for attempt in range(2):
+        try:
+            with sqlite3.connect(db_file, timeout=10) as conn:
+                try:
+                    cur = conn.cursor()
+                    cur.execute("DELETE FROM history WHERE id = ?", (id,)) # Delete by id
+                    conn.commit()
+                    log.info(f"Deleted record with id {id}")
+                    return
+                except Exception as e:
+                    conn.rollback()
+                    log.warning(f"Error deleting record with id {id}: {e}")
+                    raise
+        except sqlite3.OperationalError as e:
+            if attempt == 1:  # Last attempt
+                log.error(f"Failed to delete after 2 tries: {e}")
+                raise
+            log.warning(f"DB locked, retrying...")
+            time.sleep(0.5)
 
     return
