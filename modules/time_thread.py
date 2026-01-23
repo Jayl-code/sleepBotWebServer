@@ -26,6 +26,9 @@ except ImportError:
 def watch_times():
     log.info("Starting watch_times thread")
 
+    consecutive_errors = 0
+    max_consecutive_errors = 5  # Stop after 5 failures in a row
+
     last_alarm_time = None
     last_clockout_time = None
 
@@ -112,7 +115,7 @@ def watch_times():
                 else:
                     # WAKEUP LOGIC
                     if LIGHT_CONTROL_AVAILABLE:
-                        if wakeup_dt <= now < alarm_dt and not wakeup_triggered:
+                        if wakeup_dt <= now < wakeup_dt + timedelta(minutes=1) and not wakeup_triggered:
                             log.info("Starting sunrise from watch_times thread")
                             wakeup_triggered = True
                             threading.Thread(
@@ -135,7 +138,7 @@ def watch_times():
 
                 else:
                     # COOLDOWN LOGIC
-                    if cooldown_dt <= now < clockout_dt and not cooldown_triggered:
+                    if cooldown_dt <= now < cooldown_dt + timedelta(minutes=1) and not cooldown_triggered:
                         # Check for keys file before sending notification
                         if keys_file_there():
                             log.info("Sending clockout notification from watch_times thread")
@@ -148,8 +151,25 @@ def watch_times():
                             ).start()
                         cooldown_triggered = True
 
+            consecutive_errors = 0  # Reset on success
             time.sleep(1)
         
-        except Exception:
-            log.exception("Error in watch_times thread")
+        except ValueError as e:
+            # More expected errors - log warning only
+            log.warning(f"Config error (recoverable): {e}")
+            consecutive_errors += 1
             time.sleep(5)
+        
+        except Exception as e:
+            # Unexpected errors - log fully
+            log.exception("Unexpected error in watch_times thread")
+            consecutive_errors += 1
+            
+            if consecutive_errors >= max_consecutive_errors:
+                log.critical(f"Thread failed {max_consecutive_errors} times consecutively. Stopping.")
+                break  # Exit thread instead of infinite retry
+            
+            # Wait longer with each consecutive error
+            wait_time = min(5 * consecutive_errors, 30)  # Max 30 seconds
+            log.warning(f"Retrying in {wait_time}s (attempt {consecutive_errors}/{max_consecutive_errors})")
+            time.sleep(wait_time)
