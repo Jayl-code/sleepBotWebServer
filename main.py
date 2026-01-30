@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 from modules.get_config import get_alarm_time, get_clockout_time, get_alarm_days, get_is_light_control_enabled
 from modules.time_thread import watch_times
 from modules.stopping_alarm import stop_alarm_calc
-from modules.handle_clockout import clockout_action
+from modules.handle_clockout import clockout_action, clockout_failed_action
 from modules.handle_habits import habit_done
 from modules.get_update import get_current_streak, get_current_habits, get_current_score
 from modules.update_config import save_alarm_time, save_clockout_time, save_alarm_days, toggle_light_control
@@ -143,7 +143,7 @@ def toggle_light_mode():
 
 
 # -------------------------
-#     CLOCKOUT + ALARM STOP
+#     CLOCKOUT, CLOCKOUT FAILED, AND ALARM STOP
 # -------------------------
 @app.route('/clockout')
 def clockout():
@@ -154,6 +154,16 @@ def clockout():
     except Exception as e:
         log.error(f"Failed to perform clockout action: {e}")
     return "0"
+
+@app.route('/clockout_failed')
+def clockout_failed():
+    # Called by iPhone shortcuts app when clockout fails
+    log.info("Clockout failed route called")
+    try:
+        return clockout_failed_action()
+    except Exception as e:
+        log.error(f"Failed to perform clockout failed action: {e}")
+        return "0"
 
 @app.route('/stop_alarm', methods=['POST'])
 def stop_alarm():

@@ -7,7 +7,7 @@ log = logging.getLogger(__name__)
 
 from modules.get_config import get_alarm_time, get_clockout_time, get_last_required_day, get_is_light_control_enabled
 from modules.get_from_db import get_dates_history
-from modules.update_db import insert_history
+from modules.update_db import insert_history, update_today
 
 try:
     from light_control.sunset_control import sunset_cancel_event
@@ -95,3 +95,33 @@ def _is_clockout_in_range(start, end, current):
     else:
         return start <= current or current <= end
     
+def clockout_failed_action():
+     # Get time
+    alarm_str = get_alarm_time()
+
+    # Parse HH:MM to time and datetime
+    alarm_time = datetime.strptime(alarm_str, "%H:%M").time()
+
+    # Current time
+    now = datetime.now()
+    now_time = now.time()
+
+    # Determine the date for the alarm entry
+    if now_time < alarm_time:
+        date_of_alarm = date.today()
+    else:
+        date_of_alarm = date.today() + timedelta(days=1)
+    
+    clockedOut = get_dates_history(date_of_alarm, ["clockout"])
+
+    if not clockedOut or clockedOut[0] == 0:
+        log.error("Not yet clocked out or already marked as failed.")
+        return "0"
+    
+    else:
+        log.info("Marking clockout as failed.")
+        update_today(date=date_of_alarm,
+                     clockout=0,
+                     streak=0
+                     )
+        return "1"
