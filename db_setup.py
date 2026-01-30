@@ -3,6 +3,7 @@
 # Imports
 import sqlite3
 import time
+import sys
 import logging
 
 log = logging.getLogger(__name__)
@@ -45,11 +46,10 @@ def setup_database():
                 except Exception as e:
                     conn.rollback()
                     log.warning(f"Error setting up database: {e}")
-                    raise
         except sqlite3.OperationalError as e:
             if attempt == 1:  # Last attempt
                 log.error(f"Failed to set up database after 2 tries: {e}")
-                raise
+                sys.exit(1)
             log.warning(f"DB locked, retrying...")
             time.sleep(0.5)
 

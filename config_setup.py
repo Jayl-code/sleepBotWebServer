@@ -2,6 +2,9 @@
 
 # Imports
 import json
+import logging
+
+log = logging.getLogger(__name__)
 
 # File paths
 config_file = 'config.json'
@@ -26,12 +29,16 @@ def setup_config(file_path=config_file):
     try:
         with open(file_path, 'x') as file:
             json.dump(defaults, file, indent=4)
+            log.info("Config file created with default settings.")
     except FileExistsError:
         # File already exists
         with open(file_path, 'r') as file:
             content = file.read().strip()
             if not content:  # empty file so fill with defaults
+                log.info("Config file was empty, writing default settings.")
                 with open(file_path, "w") as f:
                     json.dump(defaults, f, indent=4)
+            else:
+                log.info("Config file already exists.")
 
     return

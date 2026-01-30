@@ -1,17 +1,23 @@
 from datetime import date
 import logging
 
+log = logging.getLogger(__name__)
+
 from modules.get_from_db import get_dates_history
 from modules.get_config import get_last_required_day
 from modules.update_db import update_today
 
-log = logging.getLogger(__name__)
 
 def habit_done(habit_id):
 
     dateToday = str(date.today())
-    todays_history = get_dates_history(dateToday, ["habit1", "habit2", "habit3", "habit4", "score"])
-    last_history = get_dates_history(get_last_required_day(), ["habit1", "habit2", "habit3", "habit4"])
+
+    try:
+        todays_history = get_dates_history(dateToday, ["habit1", "habit2", "habit3", "habit4", "score"])
+        last_history = get_dates_history(get_last_required_day(), ["habit1", "habit2", "habit3", "habit4"])
+    except Exception:
+        log.exception("Failed to retrieve habit data from database")
+        return
 
     if not todays_history:
         log.info("Day not yet in database")

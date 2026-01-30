@@ -56,7 +56,7 @@ def stop_alarm_calc(time_str, seconds_str):
     todays_history = get_dates_history(dateToday, ["alarmAttempted", "streak"])
     historyToday = True if todays_history else False
 
-    if historyToday and todays_history[0] == 1:
+    if historyToday and todays_history is not None and todays_history[0] == 1:
         log.info("Alarm already stopped for today.")
         return
     
@@ -69,7 +69,7 @@ def stop_alarm_calc(time_str, seconds_str):
 
         log.info(f"Alarm stopped after {effective_seconds} seconds.")
 
-        multiplier = get_multiplier(todays_history) if historyToday else 1
+        multiplier = _get_multiplier(todays_history) if historyToday else 1
 
         # Score calculation
         points_deducted = effective_seconds * 16 # 16 points deducted per second
@@ -121,7 +121,7 @@ def stop_alarm_calc(time_str, seconds_str):
 
     return
 
-def get_multiplier(history):
+def _get_multiplier(history):
     current_streak = history[1]
 
     if current_streak > 0:

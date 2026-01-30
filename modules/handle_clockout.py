@@ -61,7 +61,7 @@ def clockout_action():
     allowed_before_time = (clockout_dt - timedelta(hours=allowed_time_before_amount)).time()
 
     # Check if current time is within allowed clockout range
-    clockout_in_range = is_clockout_in_range(allowed_before_time, clockout_time, now_time)
+    clockout_in_range = _is_clockout_in_range(allowed_before_time, clockout_time, now_time)
 
     if clockout_in_range:
         if lastHistory is None:
@@ -85,7 +85,7 @@ def clockout_action():
         return "0"
 
 # Checks if current time is within the allowed clockout range
-def is_clockout_in_range(start, end, current):
+def _is_clockout_in_range(start, end, current):
     current = str(current)
     start = str(start)
     end = str(end)

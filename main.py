@@ -3,6 +3,7 @@
 # Imports
 from flask import Flask, render_template, redirect, url_for, request, jsonify, abort
 import threading
+import sys
 import logging
 
 log = logging.getLogger(__name__)
@@ -22,8 +23,17 @@ from config_setup import setup_config
 
 
 # Create config, DB and DB table if they don't exist
-setup_database()
-setup_config()
+try:
+    setup_database()
+except Exception:
+    log.exception("Failed to set up database on startup")
+    sys.exit(1)
+
+try:
+    setup_config()
+except Exception:
+    log.exception("Failed to set up config on startup")
+    sys.exit(1)
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -34,9 +44,13 @@ thread_started = False
 def start_background_thread():
     global thread_started
     if not thread_started:
-        thread = threading.Thread(target=watch_times, daemon=True)
-        thread.start()
-        thread_started = True
+        try:
+            thread = threading.Thread(target=watch_times, daemon=True)
+            thread.start()
+            thread_started = True
+        except Exception:
+            log.exception("Failed to start background thread")
+            sys.exit(1)
 
 start_background_thread()
 
@@ -60,7 +74,8 @@ def home():
         habitsActive, habits = get_current_habits()
     
     except Exception:
-        log.exception("Error getting data for home page")     
+        log.exception("Error getting data for home page") 
+        return "Error loading page", 500    
     
     return render_template(
         'index.html',
@@ -83,13 +98,33 @@ def home():
 @app.route('/set_alarm', methods=['POST'])
 def set_alarm():
     log.info("Set new alarm time route called")
-    save_alarm_time(request.form['alarm_time'])
+    
+    alarm_time = request.form.get('alarm_time')
+    if not alarm_time:
+        log.warning("alarm_time not provided")
+        return redirect(url_for('home'))
+    
+    try:
+        save_alarm_time(alarm_time)
+    except Exception as e:
+        log.error(f"Failed to save alarm time: {e}")
+    
     return redirect(url_for('home'))
 
 @app.route('/set_clockout', methods=['POST'])
 def set_clockout():
     log.info("Set new clockout time route called")
-    save_clockout_time(request.form['clockout_time'])
+    
+    clockout_time = request.form.get('clockout_time')
+    if not clockout_time:
+        log.warning("clockout_time not provided")
+        return redirect(url_for('home'))
+    
+    try:
+        save_clockout_time(clockout_time)
+    except Exception as e:
+        log.error(f"Failed to save clockout time: {e}")
+    
     return redirect(url_for('home'))
 
 
@@ -98,8 +133,12 @@ def set_clockout():
 # -------------------------
 @app.route('/toggle_light_mode', methods=['GET'])
 def toggle_light_mode():
-    toggle_light_control()
-    log.info("Toggled light control mode")
+    try:
+        toggle_light_control()
+        log.info("Toggled light control mode")
+    except Exception as e:
+        log.error(f"Failed to toggle light control: {e}")
+    
     return redirect(url_for('home'))
 
 
@@ -108,8 +147,13 @@ def toggle_light_mode():
 # -------------------------
 @app.route('/clockout')
 def clockout():
+    # Called by iPhone shortcuts app to perform clockout action
     log.info("Clockout route called")
-    return clockout_action()
+    try:
+        return clockout_action()
+    except Exception as e:
+        log.error(f"Failed to perform clockout action: {e}")
+    return "0"
 
 @app.route('/stop_alarm', methods=['POST'])
 def stop_alarm():
@@ -119,9 +163,12 @@ def stop_alarm():
         log.warning("No JSON data received in stop_alarm")
         return jsonify({"error": "No JSON received"}), 400
     
-    log.info(f"Stopping alarm route reached with: {data}")
+    try:
+        stop_alarm_calc(data.get("time"), data.get("seconds"))
+        log.info(f"Stopping alarm: {data}")
+    except Exception as e:
+        log.error(f"Failed to stop alarm: {e}")
 
-    stop_alarm_calc(data.get("time"), data.get("seconds"))
     return "", 202  # Accepted
 
 
@@ -135,9 +182,13 @@ def habit(habit_id):
         log.warning(f"Invalid habit ID received: {habit_id}")
         abort(404)
 
-    log.info(f"Habit route called for habit ID: {habit_id}")
-    habit_done(habit_id)
-    return "", 202
+    try:
+        log.info(f"Habit route called for habit ID: {habit_id}")
+        habit_done(habit_id)
+    except Exception as e:
+        log.error(f"Failed to mark habit {habit_id} as done: {e}")
+    
+    return "", 202 # Accepted
 
 
 # -------------------------
@@ -153,18 +204,21 @@ def toggle_day():
         return jsonify({"error": "Missing day"}), 400
 
     day = data["day"]
-    days = get_alarm_days()
+    
+    try:
+        days = get_alarm_days()
 
-    if day not in days:
-        log.warning(f"Invalid day provided in toggle_day: {day}")
-        return jsonify({"error": "Invalid day"}), 400
+        if day not in days:
+            log.warning(f"Invalid day provided in toggle_day: {day}")
+            return jsonify({"error": "Invalid day"}), 400
 
-    # Toggle the day (True/False)
-    days[day] = not days[day]
-    save_alarm_days(days)
-
-    log.info(f"Toggled day {day} to {days[day]}")
-    return jsonify({"success": True, "new_value": days[day]})
+        days[day] = not days[day]
+        save_alarm_days(days)
+        log.info(f"Toggled day {day} to {days[day]}")
+        return jsonify({"success": True, "new_value": days[day]})
+    except Exception as e:
+        log.error(f"Failed to toggle day {day}: {e}")
+        return jsonify({"error": "Failed to toggle day"}), 500
 
 
 # -------------------------
@@ -172,21 +226,45 @@ def toggle_day():
 # -------------------------
 @app.route('/history')
 def history():
-    return render_template('history.html', rows=get_all_history())
+    try:
+        rows = get_all_history()
+    except Exception as e:
+        log.error(f"Failed to get history: {e}")
+        rows = []
+    
+    return render_template('history.html', rows=rows)
 
 @app.route('/delete_id', methods=['POST'])
 def delete_id():
-    delete_row(request.form['id'])
-    log.info(f"Deleted row with ID: {request.form['id']}")
+    row_id = request.form.get('id')
+    if not row_id:
+        log.warning("id not provided")
+        return redirect(url_for('history'))
+    
+    try:
+        delete_row(int(row_id))
+        log.info(f"Deleted row with ID: {row_id}")
+    except (ValueError, Exception) as e:
+        log.error(f"Failed to delete row: {e}")
+    
     return redirect(url_for('history'))
 
 @app.route('/update_day', methods=['POST'])
 def update_day():
-    update_today(
-        date=request.form['date'],
-        **{request.form['column']: request.form['updated']}
-    )
-    log.info(f"Updated {request.form['column']} for date {request.form['date']} to {request.form['updated']}")
+    date = request.form.get('date')
+    column = request.form.get('column')
+    updated = request.form.get('updated')
+    
+    if not date or not column or updated is None:
+        log.warning("Missing required fields")
+        return redirect(url_for('history'))
+    
+    try:
+        update_today(date=date, **{column: updated})
+        log.info(f"Updated {column} for date {date}")
+    except Exception as e:
+        log.error(f"Failed to update: {e}")
+    
     return redirect(url_for('history'))
 
 

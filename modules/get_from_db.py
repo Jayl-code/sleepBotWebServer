@@ -32,7 +32,6 @@ def get_dates_history(date, columns): # Input date then a list of the things to 
                     return row
                 except Exception as e:
                     log.warning(f"Error retrieving record for {date}: {e}")
-                    raise
         except sqlite3.OperationalError as e:
             if attempt == 1:  # Last attempt
                 log.error(f"Failed to retrieve after 2 tries: {e}")
@@ -56,7 +55,6 @@ def get_current_highscore():
                     return highscore[0]
                 except Exception as e:
                     log.warning(f"Error retrieving highscore: {e}")
-                    raise
         except sqlite3.OperationalError as e:
             if attempt == 1:  # Last attempt
                 log.error(f"Failed to retrieve highscore after 2 tries: {e}")
@@ -79,7 +77,6 @@ def get_all_history():
                     return rows
                 except Exception as e:
                     log.warning(f"Error retrieving all history: {e}")
-                    raise
         except sqlite3.OperationalError as e:
             if attempt == 1:  # Last attempt
                 log.error(f"Failed to retrieve all history after 2 tries: {e}")

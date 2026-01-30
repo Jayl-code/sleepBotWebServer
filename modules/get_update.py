@@ -1,5 +1,8 @@
 # Imports
 from datetime import date
+import logging 
+
+log = logging.getLogger(__name__)
 
 from modules.get_config import get_last_required_day
 from modules.get_from_db import get_dates_history
@@ -9,16 +12,28 @@ from modules.get_from_db import get_dates_history
 
 def get_current_score():
     today = str(date.today())
-    todays_score = get_dates_history(today, ["score"])
+    try:
+        todays_score = get_dates_history(today, ["score"])
+    except Exception:
+        log.exception("Failed to retrieve today's score from database")
+        return 0
     if not todays_score:
         return 0
     return todays_score[0]
 
 def get_current_streak():
     today = str(date.today())
-    today_history = get_dates_history(today, ["streak"])
+    try:
+        today_history = get_dates_history(today, ["streak"])
+    except Exception:
+        log.exception("Failed to retrieve today's streak from database")
+        return False, 0
     if not today_history:
-        last_streak = get_dates_history(get_last_required_day(), ["streak"])
+        try:
+            last_streak = get_dates_history(get_last_required_day(), ["streak"])
+        except Exception:
+            log.exception("Failed to retrieve last streak from database")
+            return False, 0
         if not last_streak:
             return False, 0
         else:
@@ -29,8 +44,13 @@ def get_current_streak():
 def get_current_habits():
     habits = ["habit1", "habit2", "habit3", "habit4"]
     today = str(date.today())
-    last_habits = get_dates_history(get_last_required_day(), habits)
-    todays_habits = get_dates_history(today, habits)
+    try:
+        last_habits = get_dates_history(get_last_required_day(), habits)
+        todays_habits = get_dates_history(today, habits)
+    except Exception:
+        log.exception("Failed to retrieve habit data from database")
+        last_habits = None
+        todays_habits = None
 
     # If they returned None, replace with zero-filled lists
     if last_habits is None:

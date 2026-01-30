@@ -26,8 +26,8 @@ except ImportError:
 def watch_times():
     log.info("Starting watch_times thread")
 
+    MAX_CONSECUTIVE_ERRORS = 5  # Stop after 5 failures in a row
     consecutive_errors = 0
-    max_consecutive_errors = 5  # Stop after 5 failures in a row
 
     last_alarm_time = None
     last_clockout_time = None
@@ -165,11 +165,11 @@ def watch_times():
             log.exception("Unexpected error in watch_times thread")
             consecutive_errors += 1
             
-            if consecutive_errors >= max_consecutive_errors:
-                log.critical(f"Thread failed {max_consecutive_errors} times consecutively. Stopping.")
+            if consecutive_errors >= MAX_CONSECUTIVE_ERRORS:
+                log.critical(f"Thread failed {MAX_CONSECUTIVE_ERRORS} times consecutively. Stopping.")
                 break  # Exit thread instead of infinite retry
             
             # Wait longer with each consecutive error
             wait_time = min(5 * consecutive_errors, 30)  # Max 30 seconds
-            log.warning(f"Retrying in {wait_time}s (attempt {consecutive_errors}/{max_consecutive_errors})")
+            log.warning(f"Retrying in {wait_time}s (attempt {consecutive_errors}/{MAX_CONSECUTIVE_ERRORS})")
             time.sleep(wait_time)

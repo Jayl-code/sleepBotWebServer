@@ -40,7 +40,6 @@ def insert_history(**kwargs): # Call with (column name):(value) pairs to insert 
                 except Exception as e:
                     conn.rollback()
                     log.warning(f"Error inserting record for {date}: {e}")
-                    raise
         except sqlite3.OperationalError as e:
             if attempt == 1:  # Last attempt
                 log.error(f"Failed to insert after 2 tries: {e}")
@@ -92,7 +91,6 @@ def update_today(**kwargs): # Call with date:(Date of row to update), (row to up
                 except Exception as e:
                     conn.rollback()
                     log.warning(f"Error updating record for {date}: {e}")
-                    raise
         except sqlite3.OperationalError as e:
             if attempt == 1:  # Last attempt
                 log.error(f"Failed to update after 2 tries: {e}")
@@ -116,7 +114,6 @@ def delete_row(id): # Call with the id of the row to delete
                 except Exception as e:
                     conn.rollback()
                     log.warning(f"Error deleting record with id {id}: {e}")
-                    raise
         except sqlite3.OperationalError as e:
             if attempt == 1:  # Last attempt
                 log.error(f"Failed to delete after 2 tries: {e}")
