@@ -9,6 +9,13 @@ import logging
 
 log = logging.getLogger(__name__)
 
+sound_effects = { 
+    "alarm": "static/sounds/alarm_sound.wav",
+    "habit": "static/sounds/habit_part_complete.wav",
+    "habits_complete": "static/sounds/habits_full_complete.wav",
+    "clockout": "static/sounds/clockout_sound.wav",
+}
+
 # Create a lock to protect access to shared variables
 _lock = threading.Lock()
 
@@ -16,10 +23,11 @@ _looping = False
 _loop_thread = None
 _current_process = None
 
-def loop_sound_toggle(run: bool, filename="static/sounds/alarm_sound.wav", max_time=300):
+def loop_sound_toggle(run: bool, max_time=300):
     log.info("loop_sound_toggle called with run=%s", run)
     global _looping, _loop_thread, _current_process
 
+    filename = sound_effects["alarm"]
     # STOP
     if not run:
         with _lock:  # Acquire lock before accessing shared variables
@@ -50,7 +58,7 @@ def loop_sound_toggle(run: bool, filename="static/sounds/alarm_sound.wav", max_t
             _looping = False
         return
 
-    def loop_thread_func():
+    def _loop_thread_func():
         global _looping, _current_process
         start_time = time.time()
 
@@ -120,5 +128,31 @@ def loop_sound_toggle(run: bool, filename="static/sounds/alarm_sound.wav", max_t
             except Exception as e:
                 log.error(f"Error in cleanup: {e}")
 
-    _loop_thread = threading.Thread(target=loop_thread_func, daemon=True)
+    _loop_thread = threading.Thread(target=_loop_thread_func, daemon=True)
     _loop_thread.start()
+
+
+def play_sound_effect(sound_name):
+    log.info(f"play_sound_effect called with sound_name={sound_name}")
+    if sound_name not in sound_effects:
+        log.error(f"Sound effect '{sound_name}' not found.")
+        return
+    
+    filename = sound_effects[sound_name]
+    if not os.path.exists(filename):
+        log.error(f"Sound file not found: {filename}")
+        return
+
+    def _play_sound_effect_thread(filename):
+        try:
+            subprocess.Popen(["/usr/bin/aplay", filename]) # aplay for use on Pi, afplay when testing on mac
+            log.info(f"Playing sound effect: {filename}")
+        except Exception:
+            log.exception(f"Failed to play sound effect")
+
+    threading.Thread(
+        target=_play_sound_effect_thread,
+        args=(filename,),
+        daemon=True
+        ).start()
+    
