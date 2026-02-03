@@ -8,6 +8,7 @@ log = logging.getLogger(__name__)
 from modules.get_config import get_alarm_time, get_clockout_time, get_last_required_day, get_is_light_control_enabled
 from modules.get_from_db import get_dates_history
 from modules.update_db import insert_history, update_today
+from modules.handle_sounds import play_sound_effect
 
 try:
     from light_control.sunset_control import sunset_cancel_event
@@ -64,6 +65,10 @@ def clockout_action():
     clockout_in_range = _is_clockout_in_range(allowed_before_time, clockout_time, now_time)
 
     if clockout_in_range:
+        log.info("Playing clockout sound effect.")
+        play_sound_effect("clockout_sound")
+
+         # Calculate new streak
         if lastHistory is None:
             previous_streak = 0  # no previous entries or not consecutive day
         else:    
