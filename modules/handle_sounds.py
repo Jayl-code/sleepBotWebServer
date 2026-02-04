@@ -23,11 +23,10 @@ _looping = False
 _loop_thread = None
 _current_process = None
 
-def loop_sound_toggle(run: bool, max_time=300):
+def loop_sound_toggle(run: bool, filename="static/sounds/alarm_sound.wav", max_time=300):
     log.info("loop_sound_toggle called with run=%s", run)
     global _looping, _loop_thread, _current_process
 
-    filename = sound_effects["alarm"]
     # STOP
     if not run:
         with _lock:  # Acquire lock before accessing shared variables
