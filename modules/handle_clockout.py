@@ -66,7 +66,7 @@ def clockout_action():
 
     if clockout_in_range:
         log.info("Playing clockout sound effect.")
-        play_sound_effect("clockout_sound")
+        play_sound_effect("clockout")
 
          # Calculate new streak
         if lastHistory is None:
