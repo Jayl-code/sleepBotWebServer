@@ -62,21 +62,3 @@ def save_alarm_days(update, file_path=config_file):
     except Exception:
         log.exception("Failed to save alarm days")
         raise
-
-# Toggles light control setting in config file
-def toggle_light_control(file_path=config_file, key='light_control'):
-    try:
-        with open(file_path, "r") as f:
-            data = json.load(f)
-
-        data[key] = not data.get(key, False)
-
-        with open(file_path, "w") as f:
-            json.dump(data, f, indent=4)
-
-        invalidate_cache()
-        log.info("Toggled light control setting")
-        return
-    except Exception:
-        log.exception("Failed to toggle light control")
-        raise

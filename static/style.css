@@ -18,9 +18,7 @@ body {
 .streak,
 .scores,
 .habits,
-.history_button,
-.light_status,
-.expand_controls {
+.history_button {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -39,9 +37,7 @@ body {
 /* --- Individual background colors --- */
 .times,
 .day_container,
-.history_button,
-.light_status,
-.expand_controls {
+.history_button {
     background-color: #4f0b52;
 }
 
@@ -63,9 +59,7 @@ body {
     width: 150px;
 }
 
-.history_button,
-.light_status,
-.expand_controls {
+.history_button {
     width: 50px;
 }
 

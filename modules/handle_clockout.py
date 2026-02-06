@@ -1,20 +1,13 @@
 # Imports
 from datetime import datetime, date, timedelta
-from threading import Event
 import logging
 
 log = logging.getLogger(__name__)
 
-from modules.get_config import get_alarm_time, get_clockout_time, get_last_required_day, get_is_light_control_enabled
+from modules.get_config import get_alarm_time, get_clockout_time, get_last_required_day
 from modules.get_from_db import get_dates_history
 from modules.update_db import insert_history, update_today
 from modules.handle_sounds import play_sound_effect
-
-try:
-    from light_control.sunset_control import sunset_cancel_event
-except ImportError:
-    sunset_cancel_event = Event()
-    log.debug("Light control not installed or incorrectly set up.")
 
 # File paths
 config_file = 'config.json'
@@ -23,9 +16,6 @@ db_file = 'database.db'
 
 # Processes clockout action and updates database accordingly
 def clockout_action():
-    if get_is_light_control_enabled():
-        sunset_cancel_event.set() # Cancel any ongoing sunset
-
     allowed_time_before_amount = 3  # Hours
 
     # Get times

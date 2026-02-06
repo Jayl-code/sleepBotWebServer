@@ -1,20 +1,13 @@
 # Imports
 from datetime import datetime, date, timedelta
-from threading import Event
 import logging
 
 log = logging.getLogger(__name__)
 
-from modules.get_config import get_alarm_time, get_is_light_control_enabled
+from modules.get_config import get_alarm_time
 from modules.get_from_db import get_dates_history
 from modules.handle_sounds import loop_sound_toggle
 from modules.update_db import insert_history, update_today
-
-try:
-    from light_control.sunrise_control import sunrise_cancel_event
-except ImportError:
-    sunrise_cancel_event = Event()
-    log.debug("Light control not installed or incorrectly set up.")
 
 
 # File paths
@@ -44,9 +37,6 @@ def build_time_datetime(time_str, alarm_time):
 
 def stop_alarm_calc(time_str, seconds_str):
     loop_sound_toggle(False)
-
-    if get_is_light_control_enabled():
-        sunrise_cancel_event.set()
 
     alarm_time = get_alarm_time()
     dateToday = str(date.today())

@@ -8,13 +8,13 @@ import logging
 
 log = logging.getLogger(__name__)
 
-from modules.get_config import get_alarm_time, get_clockout_time, get_alarm_days, get_is_light_control_enabled
+from modules.get_config import get_alarm_time, get_clockout_time, get_alarm_days
 from modules.time_thread import watch_times
 from modules.stopping_alarm import stop_alarm_calc
 from modules.handle_clockout import clockout_action, clockout_failed_action
 from modules.handle_habits import habit_done
 from modules.get_update import get_current_streak, get_current_habits, get_current_score
-from modules.update_config import save_alarm_time, save_clockout_time, save_alarm_days, toggle_light_control
+from modules.update_config import save_alarm_time, save_clockout_time, save_alarm_days
 from modules.get_from_db import get_all_history, get_current_highscore
 from modules.update_db import delete_row, update_today
 
@@ -67,7 +67,6 @@ def home():
         alarm_time=get_alarm_time()
         clockout_time=get_clockout_time()
         alarm_days=get_alarm_days()
-        light_mode=get_is_light_control_enabled()
         highscore=get_current_highscore()
         score=get_current_score()
         streakActive, streak=get_current_streak()
@@ -82,7 +81,6 @@ def home():
         alarm_time=alarm_time,
         clockout_time=clockout_time,
         alarm_days=alarm_days,
-        light_mode=light_mode,
         highscore=highscore,
         score=score,
         streakActive=streakActive,
@@ -124,20 +122,6 @@ def set_clockout():
         save_clockout_time(clockout_time)
     except Exception as e:
         log.error(f"Failed to save clockout time: {e}")
-    
-    return redirect(url_for('home'))
-
-
-# -------------------------
-#       TOGGLE LIGHT CONTROL
-# -------------------------
-@app.route('/toggle_light_mode', methods=['GET'])
-def toggle_light_mode():
-    try:
-        toggle_light_control()
-        log.info("Toggled light control mode")
-    except Exception as e:
-        log.error(f"Failed to toggle light control: {e}")
     
     return redirect(url_for('home'))
 

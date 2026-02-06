@@ -96,11 +96,6 @@ def get_alarm_days():
     config = _load_config()
     return config.get('alarm_days')
 
-# Returns True if light control is enabled, otherwise False
-def get_is_light_control_enabled():
-    config = _load_config()
-    return config.get('light_control', False)
-
 # Call this after writing config to refresh cache
 def invalidate_cache():
     global _config_cache, _config_mtime
