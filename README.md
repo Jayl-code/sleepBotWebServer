@@ -22,9 +22,23 @@ python3 -m venv venv
 source venv/bin/activate
 
 pip install -r requirements.txt
+```
+Then add your Pushover details into a file named **keys.json** (make it yourself) in the sleepBotWebServer directory if you want notifications to be sent to your phone.
 
+Format:
+```
+{
+    "user_key":"USER KEY HERE",
+    "app_token":"APP TOKEN HERE"
+}
+```
+You can then test it with:
+```
 gunicorn -w 1 -b 0.0.0.0:8000 wsgi:app
 ```
+And make a systemd service file for it to run at launch.
+
+
 
 Requirements:
 
