@@ -48,32 +48,11 @@ Requirements:
 
 ### 3. iPhone (Apple Shortcuts App)
 
-- Open **Shortcuts → Automation**
+- Install both of the Apple shortcuts linked below and **set them up correctly.** (Instructions written in each shortcut, start with Clockout shortcut)
 
-- Tap **+**
+  - Clockout shortcut `https://www.icloud.com/shortcuts/89e42f065e2440089f876fa15507fd86`
 
-- Select **NFC**
-
-- Scan your NFC tag
-
-- Choose **Run Immediately**
-
-- Create a new shortcut:
-
-  - Add **Get Battery Status**
-
-  - Change it to **Is Connected to Charger**
-
-  - Add an **If** block
-
-  - Inside the `If Battery State` block, add **Get Contents of URL**
-
-  - Set the URL to:
-    ``` arduino
-    http://<SERVER_IP>:8000/clockout
-    ```
-
-This automation triggers the clock-out action when the phone is charging and the NFC tag is scanned.
+  - Clockout Fail Check shortcut `https://www.icloud.com/shortcuts/2447c12af3424ac6bc879eb5c448a6af`
 
 ## License
 
