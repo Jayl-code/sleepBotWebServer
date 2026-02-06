@@ -11,7 +11,7 @@ const toggleVisibility = (btnId, formId) => {
 
 toggleVisibility("alarm_settings_btn", "alarm_form");
 toggleVisibility("clockout_settings_btn", "clockout_form");
-
+toggleVisibility("expand_button", "test");
 
 // ---------- Visibility change updates -----------------------------------------
 

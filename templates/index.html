@@ -93,6 +93,12 @@
   <!-- History and Light Control -->
    <div class="button_row">
 
+    <div class="expand_controls">
+        <button id="expand_button" type="button">
+          <i class="fa-solid fa-caret-down"></i>
+        </button>
+    </div>
+
     <div class="light_status">
       <form id="light_form" method="get" action="/toggle_light_mode">
         <button class="{{ 'on' if light_mode else 'off' }}" type="submit">
@@ -110,6 +116,10 @@
     </div>
 
    </div>
+
+  <div>
+    <label id="test" style="display: none;">test</label>
+  </div>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
