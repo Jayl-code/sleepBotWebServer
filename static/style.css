@@ -19,8 +19,7 @@ body {
 .scores,
 .habits,
 .history_button,
-.light_status,
-.expand_controls {
+.light_status {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -40,8 +39,7 @@ body {
 .times,
 .day_container,
 .history_button,
-.light_status,
-.expand_controls {
+.light_status {
     background-color: #4f0b52;
 }
 
@@ -64,8 +62,7 @@ body {
 }
 
 .history_button,
-.light_status,
-.expand_controls {
+.light_status {
     width: 50px;
 }
 
