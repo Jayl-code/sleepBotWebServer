@@ -64,9 +64,9 @@ Requirements:
 
 - Install both of the Apple shortcuts linked below and **set them up correctly.** (Instructions written in each shortcut, start with Clockout shortcut)
 
-  - Clockout shortcut `https://www.icloud.com/shortcuts/89e42f065e2440089f876fa15507fd86`
+  - Clockout shortcut: #TODO Add updated link
 
-  - Clockout Fail Check shortcut `https://www.icloud.com/shortcuts/2447c12af3424ac6bc879eb5c448a6af`
+  - Clockout Fail Check shortcut: #TODO Add updated link
 
 ## License
 
