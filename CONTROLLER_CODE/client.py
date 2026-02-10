@@ -50,6 +50,38 @@ def error_flash():
             h["led"].value(0)
         utime.sleep_ms(75)
 
+# Habit part complete
+def single_flash(led):
+    led["led"].value(0)
+    utime.sleep_ms(250)
+    led["led"].value(1)
+    utime.sleep_ms(100)
+    led["led"].value(0)
+    utime.sleep_ms(100)
+    led["led"].value(1)
+    utime.sleep_ms(100)
+    led["led"].value(0)
+    utime.sleep_ms(200)
+    led["led"].value(1)
+    utime.sleep_ms(100)
+    led["led"].value(0)
+    utime.sleep_ms(100)
+    led["led"].value(1)
+    utime.sleep_ms(100)
+    led["led"].value(0)
+    
+# All habits complete
+def habits_complete(led):
+    led["led"].value(0)
+    for h in habits:
+        h["led"].value(1)
+        utime.sleep_ms(100)
+        h["led"].value(0)
+        utime.sleep_ms(100)
+        h["led"].value(1)
+        utime.sleep_ms(100)
+        h["led"].value(0)
+
 # Connect to wifi
 def wifi_connect(max_retries=3, backoff_time=5):
     wlan.active(True)
@@ -199,15 +231,16 @@ while True:
         for h in habits:
             if not h["btn"].value():
                 if h["led"].value() == 1:  # Only act if LED is ON
-                    h["led"].value(0)
                     handle_habit(h["index"])
                     habits_left = habits_left - 1
+                    if habits_left == 0:
+                        habits_complete(h)
+                        habits_active = False
+                    else:
+                        single_flash(h)
                     utime.sleep_ms(debounce_delay)
                 
                 
-        if habits_left == 0:
-            habits_active = False
-        
         if not submit_btn.value():
             for h in habits:
                 h["led"].value(0)
