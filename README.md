@@ -3,8 +3,9 @@
 Sleep Bot — gamify your sleep.
 
 ## About
+Link to video about it: [sleepBot video](#todo link once published)
 
-Sleep Bot is a system that tracks sleep-related habits and rewards consistency through streaks, multipliers, and clock-out enforcement.
+Sleep Bot is a system that tracks sleep-related habits and rewards consistency through streaks, multipliers, and clock-out enforcement. It is NOT plug and play, as it requires a controller be made.
 
 ## Features
 
@@ -38,6 +39,37 @@ gunicorn -w 1 -b 0.0.0.0:8000 wsgi:app
 ```
 And make a systemd service file for it to run at launch.
 
+Example systemd service file:
+```
+[Unit]
+Description=Sleep Bot Server
+After=network.target
+
+[Service]
+User={USERNAME}
+Group={USERNAME}
+WorkingDirectory=/home/{USERNAME}/sleepBotWebServer
+Environment="PATH=/home/{USERNAME}/sleepBotWebServer/venv/bin"
+
+ExecStart=/home/{USERNAME}/sleepBotWebServer/venv/bin/gunicorn \
+  --workers 1 \
+  --worker-class gthread \
+  --threads 2 \
+  --timeout 30 \
+  --keep-alive 2 \
+  --bind 0.0.0.0:8000 \
+  wsgi:app
+
+Restart=always
+RestartSec=3
+KillSignal=SIGQUIT
+TimeoutStopSec=30
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target
+```
+
 
 
 Requirements:
@@ -45,6 +77,8 @@ Requirements:
 - Python 3.10 or newer
 
 - Local network access for connected devices
+
+- Audio output device correctly set up on Pi
 
 ### 2. Microcontroller (Raspberry Pi Pico)
 
@@ -62,11 +96,11 @@ Requirements:
 
 ### 3. iPhone (Apple Shortcuts App)
 
-- Install both of the Apple shortcuts linked below and **set them up correctly.** (Instructions written in each shortcut, start with Clockout shortcut)
+- Install both of the Apple shortcuts linked below and **set them up correctly.** (Instructions are written in each shortcut; start with the Clockout shortcut)
 
-  - Clockout shortcut: #TODO Add updated link
+  - [Clockout](https://www.icloud.com/shortcuts/d828db62e8924f3683a13e43066be386)
 
-  - Clockout Fail Check shortcut: #TODO Add updated link
+  - [Clockout Fail Check](https://www.icloud.com/shortcuts/9b7c0413d8c0449291d5b9c00977033d)
 
 ## License
 
