@@ -17,6 +17,7 @@ from modules.get_update import get_current_streak, get_current_habits, get_curre
 from modules.update_config import save_alarm_time, save_clockout_time, save_alarm_days, toggle_light_control
 from modules.get_from_db import get_all_history, get_current_highscore
 from modules.update_db import delete_row, update_today
+from modules.light_toggles import start_sunset_toggle, start_sunrise_toggle, fast_finish_toggle
 
 from db_setup import setup_database
 from config_setup import setup_config
@@ -131,7 +132,7 @@ def set_clockout():
 
 
 # -------------------------
-#       TOGGLE LIGHT CONTROL
+#       LIGHT CONTROL
 # -------------------------
 @app.route('/toggle_light_mode', methods=['GET'])
 def toggle_light_mode():
@@ -141,6 +142,33 @@ def toggle_light_mode():
     except Exception as e:
         log.error(f"Failed to toggle light control: {e}")
     
+    return redirect(url_for('home'))
+
+@app.route('/start_sunset', methods=['GET'])
+def start_sunset():
+    try:
+        start_sunset_toggle()
+        log.info("Manually started sunset")
+    except Exception as e:
+        log.error(f"Failed to start sunset manually: {e}")
+    return redirect(url_for('home'))
+
+@app.route('/start_sunrise', methods=['GET'])
+def start_sunrise():
+    try:
+        start_sunrise_toggle()
+        log.info("Manually started sunrise")
+    except Exception as e:
+        log.error(f"Failed to start sunrise manually: {e}")
+    return redirect(url_for('home'))
+
+@app.route('/fast_finish', methods=['GET'])
+def fast_finish():
+    try:
+        fast_finish_toggle()
+        log.info("Manually triggered fast finish")
+    except Exception as e:
+        log.error(f"Failed to trigger fast finish manually: {e}")
     return redirect(url_for('home'))
 
 

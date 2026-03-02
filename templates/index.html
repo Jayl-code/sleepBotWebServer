@@ -101,15 +101,39 @@
       </form>
     </div>
 
-    <div class="history_button">
+    <div class="start_sunset">
+      <form id="start_sunset_button" method="get" action="/start_sunset">
+        <button class="{{ 'on' if light_mode else 'off' }}" type="submit">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+      </form>
+    </div>
+
+    <div class="start_sunrise">
+      <form id="start_sunrise_button" method="get" action="/start_sunrise">
+        <button class="{{ 'on' if light_mode else 'off' }}" type="submit">
+          <i class="fa-solid fa-sun"></i>
+        </button>
+      </form>
+    </div>
+
+    <div class="fast_finish">
+      <form id="fast_finish_button" method="get" action="/fast_finish">
+        <button class="{{ 'on' if light_mode else 'off' }}" type="submit">
+          <i class="fa-solid fa-forward-step"></i>
+        </button>
+      </form>
+    </div>
+
+   </div>
+
+   <div class="history_button">
       <form id="history_form" method="get" action="/history">
         <button type="submit">
           <i class="fa fa-history"></i>
         </button>
       </form>
     </div>
-
-   </div>
 
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>

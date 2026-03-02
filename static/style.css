@@ -19,7 +19,10 @@ body {
 .scores,
 .habits,
 .history_button,
-.light_status {
+.light_status,
+.start_sunset,
+.start_sunrise,
+.fast_finish {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -39,7 +42,10 @@ body {
 .times,
 .day_container,
 .history_button,
-.light_status {
+.light_status,
+.start_sunset,
+.start_sunrise,
+.fast_finish {
     background-color: #4f0b52;
 }
 
@@ -62,8 +68,11 @@ body {
 }
 
 .history_button,
-.light_status {
-    width: 50px;
+.light_status,
+.start_sunset,
+.start_sunrise,
+.fast_finish {
+    width: 42px;
 }
 
 /* --- Layout rows --- */
