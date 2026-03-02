@@ -1,5 +1,7 @@
 # wsgi.py
 
+# File ran by gunicorn to start the Flask app. Imports the app from main.py and sets up logging.
+
 from logging_config import setup_logging
 import logging
 
