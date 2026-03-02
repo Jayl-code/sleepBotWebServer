@@ -78,7 +78,7 @@ Requirements:
 
 - Local network access for connected devices
 
-- Audio output device correctly set up on Pi
+- Audio output device ***correctly*** set up on Pi
 
 ### 2. Microcontroller (Raspberry Pi Pico)
 

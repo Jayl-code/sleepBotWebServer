@@ -97,6 +97,7 @@ def home():
 # -------------------------
 @app.route('/set_alarm', methods=['POST'])
 def set_alarm():
+    # Called by form on home page to set new alarm time
     log.info("Set new alarm time route called")
     
     alarm_time = request.form.get('alarm_time')
@@ -113,6 +114,7 @@ def set_alarm():
 
 @app.route('/set_clockout', methods=['POST'])
 def set_clockout():
+    # Called by form on home page to set new clockout time
     log.info("Set new clockout time route called")
     
     clockout_time = request.form.get('clockout_time')
