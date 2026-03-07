@@ -3,7 +3,7 @@
 Sleep Bot — gamify your sleep.
 
 ## About
-Link to video about it: [sleepBot video](#todo link once published)
+Link to video about it: [sleepBot video](https://youtu.be/AUiJOF9ovxU)
 
 Sleep Bot is a system that tracks sleep-related habits and rewards consistency through streaks, multipliers, and clock-out enforcement. It is NOT plug and play, as it requires a controller be made.
 
