@@ -10,6 +10,12 @@ body {
     min-height: 100vh;
     margin: 0;
     padding: 20px;
+    transition: filter 0.08s;
+}
+
+/* --- Brighten on button press --- */
+body:has(button:active) {
+  filter: brightness(1.08);
 }
 
 /* --- Shared Styles for box sections --- */
