@@ -7,6 +7,8 @@ import logging
 
 log = logging.getLogger(__name__)
 
+from modules.time_thread import clear_thread_cache
+
 # File paths
 db_file = 'database.db'
 
@@ -36,6 +38,7 @@ def insert_history(**kwargs): # Call with (column name):(value) pairs to insert 
                     cur.execute(query, values) # Execute with dynamic values
                     conn.commit()
                     log.info(f"Inserted record for {date}")
+                    clear_thread_cache() # Clear cache after inserting new record
                     return
                 except Exception as e:
                     conn.rollback()
@@ -87,6 +90,7 @@ def update_today(**kwargs): # Call with date:(Date of row to update), (row to up
                     cur.execute(query, tuple(values)) # Execute with dynamic values
                     conn.commit()
                     log.info(f"Updated record for {date}")
+                    clear_thread_cache() # Clear cache after updating record
                     return
                 except Exception as e:
                     conn.rollback()
@@ -110,6 +114,7 @@ def delete_row(id): # Call with the id of the row to delete
                     cur.execute("DELETE FROM history WHERE id = ?", (id,)) # Delete by id
                     conn.commit()
                     log.info(f"Deleted record with id {id}")
+                    clear_thread_cache() # Clear cache after deleting record
                     return
                 except Exception as e:
                     conn.rollback()

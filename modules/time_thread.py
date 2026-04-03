@@ -13,8 +13,13 @@ from modules.get_from_db import get_dates_history
 from modules.notifications import send_notification, keys_file_there
 
 
+todays_alarm_history = None
+todays_clockout_history = None
+
 # Watches for set times and triggers alarm sound when time matches 
 def watch_times():
+    global todays_alarm_history, todays_clockout_history
+
     log.info("Starting watch_times thread")
 
     MAX_CONSECUTIVE_ERRORS = 5  # Stop after 5 failures in a row
@@ -40,6 +45,7 @@ def watch_times():
                 clockout_triggered_today = False
                 cooldown_triggered = False
                 last_day = now.day
+                clear_thread_cache()  # Clear cached DB results for new day
 
             # Get current alarm and clockout times from config file
             alarm_str = get_alarm_time()
@@ -88,7 +94,8 @@ def watch_times():
 
             if not alarm_triggered_today:
                 # Check DB if alarm already triggered today
-                todays_alarm_history = get_dates_history(str(alarm_dt.date()), ["alarmAttempted"])
+                if todays_alarm_history is None:  # Only query DB if not cached
+                    todays_alarm_history = get_dates_history(str(alarm_dt.date()), ["alarmAttempted"])
                 if todays_alarm_history and todays_alarm_history[0] == 1:
                     alarm_triggered_today = True
 
@@ -102,7 +109,8 @@ def watch_times():
                             
             if not clockout_triggered_today:
                 # Check DB if clockout already triggered today
-                todays_clockout_history = get_dates_history(str(clockout_dt.date()), ["clockout"])
+                if todays_clockout_history is None:  # Only query DB if not cached
+                    todays_clockout_history = get_dates_history(str(clockout_dt.date()), ["clockout"])
                 if todays_clockout_history and todays_clockout_history[0] == 1:
                     clockout_triggered_today = True
 
@@ -138,3 +146,9 @@ def watch_times():
             wait_time = min(5 * consecutive_errors, 30)  # Max 30 seconds
             log.warning(f"Retrying in {wait_time}s (attempt {consecutive_errors}/{MAX_CONSECUTIVE_ERRORS})")
             time.sleep(wait_time)
+
+
+def clear_thread_cache():
+    global todays_alarm_history, todays_clockout_history
+    todays_alarm_history = None
+    todays_clockout_history = None
