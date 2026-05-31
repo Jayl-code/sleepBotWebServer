@@ -109,7 +109,7 @@ def watch_times():
             wakeup_dt = alarm_dt - timedelta(minutes=10)
 
             # 1 hour before clockout
-            cooldown_dt = clockout_dt - timedelta(minutes=60)
+            cooldown_dt = clockout_dt - timedelta(minutes=45)
 
             if not alarm_triggered_today:
                 # Check DB if alarm already triggered today
